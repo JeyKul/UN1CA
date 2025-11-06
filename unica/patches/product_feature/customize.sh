@@ -283,7 +283,7 @@ if [[ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "$TARGET_FINGERPRINT_CONFIG_SENSOR"
                     ADD_TO_WORK_DIR "r9sxxx" "system" "system/lib/libui.so" 0 0 644 "u:object_r:system_lib_file:s0"
                     ADD_TO_WORK_DIR "r9sxxx" "system" "system/lib64/libgui.so" 0 0 644 "u:object_r:system_lib_file:s0"
                     ADD_TO_WORK_DIR "r9sxxx" "system" "system/lib64/libui.so" 0 0 644 "u:object_r:system_lib_file:s0"
-                else
+                elif [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" != "mssi" ]]; then
                     ABORT "Unknown SSI: $TARGET_OS_SINGLE_SYSTEM_IMAGE"
                 fi
 
