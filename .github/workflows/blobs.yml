@@ -49,6 +49,9 @@ jobs:
           - module: "Galaxy S23 FE (r11sxxx)"
             device: "r11sxxx"
             firmware: "SM-S711B/EUX/358615311234564"
+          - module: "Galaxy Tab S11 5G (gts11xx)"
+            device: "gts11xx"
+            firmware: "SM-X736B/EUX/359512120163481"
 
     steps:
       - name: Checkout repo
