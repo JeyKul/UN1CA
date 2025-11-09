@@ -196,9 +196,6 @@ ADD_TO_WORK_DIR "$MODEL/$REGION" "system" "system/bin"
 ADD_TO_WORK_DIR "$MODEL/$REGION" "system" "system/lib64"
 ADD_TO_WORK_DIR "$MODEL/$REGION" "system" "system/lib"
 
-ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/lib64/libLttEngine.camera.samsung.so"
-ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/lib64/libAuraRenderer.graphics.samsung.so"
-
 VEX_LIBS="
 system/lib64/libandroid.vexfwk.samsung.so
 system/lib64/libcommon-jni.vexfwk.samsung.so
@@ -223,23 +220,110 @@ done
 
 ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/lib64/libsec_camerax_util_jni.camera.samsung.so"
 ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/lib/libsec_camerax_util_jni.camera.samsung.so"
+{
+    echo "libsec_camerax_util_jni.camera.samsung.so"
+} >> "$WORK_DIR/system/system/etc/public.libraries-camera.samsung.txt"
 
 DELETE_FROM_WORK_DIR "system" "system/lib64/libtensorflowLite.myfilter.camera.samsung.so"
 DELETE_FROM_WORK_DIR "system" "system/lib64/libtensorflowlite_inference_api.myfilter.camera.samsung.so"
-sed -i "/libtensorflowLite.myfilter.camera.samsung.so/d" "$WORK_DIR/system/system/etc/public.libraries-camera.samsung.txt"
-sed -i "/libtensorflowlite_inference_api.myfilter.camera.samsung.so/d" "$WORK_DIR/system/system/etc/public.libraries-camera.samsung.txt"
+DELETE_FROM_WORK_DIR "system" "system/lib64/libdualcam_portraitlighting_gallery_360_lite.so"
 
-ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/lib64/libtensorflowLite.camera.samsung.so"
-ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/lib64/libtensorflowlite_inference_api.camera.samsung.so"
-ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/lib64/libMyFilter.camera.samsung.so"
-ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/lib64/libtensorflowLite2_11_0_dynamic_camera.so"
+LIBS="
+system/lib64/libscalenetpkg.so
+system/lib64/libSceneDetector_v1.camera.samsung.so
+system/lib64/libimage_enhancement.arcsoft.so
+system/lib64/libdualcam_portraitlighting_gallery_360.so
+system/lib64/libtensorflowLite.camera.samsung.so
+system/lib64/libMyFilter.camera.samsung.so
+system/lib64/libtensorflowlite_inference_api.camera.samsung.so
+system/lib64/libtensorflowLite2_11_0_dynamic_camera.so
+system/lib64/libLttEngine.camera.samsung.so
+system/lib64/libAuraRenderer.graphics.samsung.so
+system/lib64/libDocShadowRemoval.arcsoft.so
+system/lib64/libDeepDocRectify.camera.samsung.so
+system/lib64/libImageSegmenter_v1.camera.samsung.so
+system/lib64/libstartrail.camera.samsung.so
+system/lib64/libdvs.camera.samsung.so
+system/lib64/libPetClustering.camera.samsung.so
+system/lib64/lib_pet_detection.arcsoft.so
+system/lib64/libRelighting_API.camera.samsung.so
+system/lib64/libBestPhoto.camera.samsung.so
+system/lib64/libae_bracket_hdr.arcsoft.so
+system/lib64/libAEBHDR_wrapper.camera.samsung.so
+system/lib64/libDualCamBokehCapture.camera.samsung.so
+system/lib64/libarcsoft_dualcam_portraitlighting.so
+system/lib64/libarcsoft_single_cam_glasses_seg.so
+system/lib64/libarcsoft_superresolution_bokeh.so
+system/lib64/libdualcam_refocus_image.so
+system/lib64/libhigh_dynamic_range_bokeh.so
+system/lib64/libhighres_enhancement.arcsoft.so
+system/lib64/libHREnhancementAPI.camera.samsung.so
+system/lib64/libFaceRecognition.arcsoft.so
+system/lib64/libfrtracking_engine.arcsoft.so
+system/lib64/libMPISingleRGB40.camera.samsung.so
+system/lib64/libMPISingleRGB40Tuning.camera.samsung.so
+system/lib64/libAIQSolution_MPISingleRGB40.camera.samsung.so
+system/lib64/libAIQSolution_MPI.camera.samsung.so
+system/lib64/libLocalTM_pcc.camera.samsung.so
+system/lib64/libObjectDetector_v1.camera.samsung.so
+system/lib64/libsuperresolution_raw.arcsoft.so
+system/lib64/libsuperresolutionraw_wrapper_v2.camera.samsung.so
+"
+for lib in $LIBS; do
+    ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "$lib"
+done
+
+LIBS="
+system/lib64/libVideoClassifier.camera.samsung.so
+system/lib64/libhybridHDR_wrapper.camera.samsung.so
+system/lib64/libhybrid_high_dynamic_range.arcsoft.so
+system/lib64/libSwIsp_core.camera.samsung.so
+system/lib64/libSwIsp_wrapper_v1.camera.samsung.so
+system/lib64/libMultiFrameProcessing30.camera.samsung.so
+system/lib64/libMultiFrameProcessing30.snapwrapper.camera.samsung.so
+system/lib64/libMultiFrameProcessing30Tuning.camera.samsung.so
+"
+for lib in $LIBS; do
+    ADD_TO_WORK_DIR "gts11xx" "system" "$lib"
+done
 
 {
-    echo "libLttEngine.camera.samsung.so"
-    echo "libsec_camerax_util_jni.camera.samsung.so"
     echo "libtensorflowLite.camera.samsung.so"
     echo "libtensorflowlite_inference_api.camera.samsung.so"
+    echo "libLttEngine.camera.samsung.so"
+    echo "libBestPhoto.camera.samsung.so"
+    echo "libVideoClassifier.camera.samsung.so"
+    echo "libstartrail.camera.samsung.so"
+    echo "libObjectDetector_v1.camera.samsung.so"
+    echo "libPetClustering.camera.samsung.so"
+    echo "libImageSegmenter_v1.camera.samsung.so"
+    echo "libSceneDetector_v1.camera.samsung.so"
+    echo "libAEBHDR_wrapper.camera.samsung.so"
+    echo "libDualCamBokehCapture.camera.samsung.so"
+    echo "libHREnhancementAPI.camera.samsung.so"
+    echo "libhybridHDR_wrapper.camera.samsung.so"
+    echo "libAIQSolution_MPISingleRGB40.camera.samsung.so"
+    echo "libMPISingleRGB40.camera.samsung.so"
+    echo "libAIQSolution_MPI.camera.samsung.so"
+    echo "libSwIsp_wrapper_v1.camera.samsung.so"
+    echo "libMultiFrameProcessing30.camera.samsung.so"
+    echo "libLocalTM_pcc.camera.samsung.so"
+    echo "libsuperresolutionraw_wrapper_v2.camera.samsung.so"
+    echo "libdvs.camera.samsung.so"
+    echo "libsaiv_HprFace_cmh_support_jni.camera.samsung.so"
+    echo "libHpr_RecFace_dl_v1.0.camera.samsung.so"
+    echo "libFace_Landmark_Engine.camera.samsung.so"
 } >> "$WORK_DIR/system/system/etc/public.libraries-camera.samsung.txt"
+
+{
+    echo "lib_pet_detection.arcsoft.so"
+    echo "libae_bracket_hdr.arcsoft.so"
+    echo "libhybrid_high_dynamic_range.arcsoft.so"
+    echo "libimage_enhancement.arcsoft.so"
+    echo "libfrtracking_engine.arcsoft.so"
+    echo "libFaceRecognition.arcsoft.so"
+    echo "libsuperresolution_raw.arcsoft.so"
+} >> "$WORK_DIR/system/system/etc/public.libraries-arcsoft.txt"
 
 # frameworks
 ADD_TO_WORK_DIR "$MODEL/$REGION" "system" "system/framework/verizon.net.sip.jar"
