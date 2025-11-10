@@ -13,34 +13,42 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - module: "Galaxy A52 (a52qnsxx)"
-            path: "prebuilts/samsung/a52qnsxx"
-          - module: "Galaxy A52s 5G (a52sxqxx)"
-            path: "prebuilts/samsung/a52sxqxx"
+          - module: "Galaxy A17 5G (a17xxx)"
+            device: "a17xxx"
+            firmware: "SM-A176B/INS/350042791234568"
+          - module: "Galaxy A54 5G (a54xnsxx)"
+            device: "a54xnsxx"
+            firmware: "SM-A546E/EGY/350090711234564"
+          - module: "Galaxy A56 5G (a56xnaxx)"
+            device: "a56xnaxx"
+            firmware: "SM-A566B/EUX/352371191234565"
           - module: "Galaxy A73 5G (a73xqxx)"
-            path: "prebuilts/samsung/a73xqxx"
-          - module: "Galaxy Z Fold5 (b5qxxx)"
-            path: "prebuilts/samsung/b5qxxx"
-          - module: "Galaxy S23 (dm1qkdiw)"
-            path: "prebuilts/samsung/dm1qkdiw"
-          - module: "Galaxy S23 Ultra (dm3qxxx)"
-            path: "prebuilts/samsung/dm3qxxx"
-          - module: "Galaxy S24 (e1qzcx)"
-            path: "prebuilts/samsung/e1qzcx"
-          - module: "Galaxy Tab S9 (gts9xxx)"
-            path: "prebuilts/samsung/gts9xxx"
-          - module: "Galaxy S22 (r0qxxx)"
-            path: "prebuilts/samsung/r0qxxx"
-          - module: "Galaxy S21 FE 5G (r9qxxx)"
-            path: "prebuilts/samsung/r9qxxx"
+            device: "a73xqxx"
+            firmware: "SM-A736B/XME/352828291234563"
+          - module: "Galaxy S22 Ultra (Snapdragon) (b0qxxx)"
+            device: "b0qxxx"
+            firmware: "SM-S908E/INS/350280381234560"
+          - module: "Galaxy S22 Ultra (Exynos) (b0sxxx)"
+            device: "b0sxxx"
+            firmware: "SM-S908B/EUX/353074281234565"
+          - module: "Galaxy Z Flip4 (b4qxxx)"
+            device: "b4qxxx"
+            firmware: "SM-F731B/EUX/350929871234569"
+          - module: "Galaxy S23 (dm1qxxx)"
+            device: "dm1qxxx"
+            firmware: "SM-S911B/EUX/352404911234563"
+          - module: "Galaxy S25+ (pa2qxxx)"
+            device: "pa2qxxx"
+            firmware: "SM-S936B/EUX/350634601234562"
+          - module: "Galaxy S21 FE 5G (Snapdragon) (r9qxxx)"
+            device: "r9qxxx"
+            firmware: "SM-G990B/EUX/353718681234563"
+          - module: "Galaxy S21 FE 5G (Exynos) (r9sxxx)"
+            device: "r9sxxx"
+            firmware: "SM-G990E/INS/352755851234560"
           - module: "Galaxy S23 FE (r11sxxx)"
-            path: "prebuilts/samsung/r11sxxx"
-          - module: "(dm1q) China firmware blobs"
-            path: "target/dm1q/patches/china"
-          - module: "(dm2q) China firmware blobs"
-            path: "target/dm2q/patches/china"
-          - module: "(dm3q) China firmware blobs"
-            path: "target/dm3q/patches/china"
+            device: "r11sxxx"
+            firmware: "SM-S711B/EUX/358615311234564"
 
     steps:
       - name: Checkout repo
@@ -92,18 +100,18 @@ jobs:
       - name: Update prebuilt blobs
         run: |
           source ./buildenv.sh a52sxq
-          ./scripts/internal/update_prebuilt_blobs.sh ${{ matrix.path }}
-          echo "PDA_BUILD=$(cat ./${{ matrix.path }}/.current | cut -d "/" -f 1)" >> $GITHUB_ENV
+          ./scripts/internal/update_prebuilt_blobs.sh "${{ matrix.device }}" "${{ matrix.firmware }}"
+          echo "PDA_BUILD=$(cat "./prebuilts/samsung/${{ matrix.device }}/.current" | cut -d "/" -f "1")" >> "$GITHUB_ENV"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           add-paths: |
-            ${{ matrix.path }}
-          commit-message: '${{ matrix.path }}: update blobs to ${{ env.PDA_BUILD }}'
+            prebuilts/samsung/${{ matrix.device }}
+          commit-message: 'prebuilts/samsung/${{ matrix.device }}: update blobs to ${{ env.PDA_BUILD }}'
           committer: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
           author: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
-          branch: '${{ matrix.path }}'
+          branch: '${{ matrix.device }}'
           delete-branch: true
-          title: 'Update ${{ matrix.path }} blobs to ${{ env.PDA_BUILD }}'
+          title: 'Update prebuilts/samsung/${{ matrix.device }} blobs to ${{ env.PDA_BUILD }}'
           body: ''
