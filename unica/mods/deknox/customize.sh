@@ -3,7 +3,7 @@ SET_PROP_IF_DIFF "vendor" "ro.security.fips.ux" "Disabled"
 if [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "qssi" ]]; then
     DONOR="a73xqxx"
 elif [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "essi" ]]; then
-    DONOR="a54xnaxx"
+    DONOR="a54xnsxx"
 else
     ABORT "Unknown SSI: $TARGET_OS_SINGLE_SYSTEM_IMAGE"
 fi
