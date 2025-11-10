@@ -6,9 +6,15 @@
 /system/lib u:object_r:system_lib_file:s0
 /system/lib/libandroid_servers\.so u:object_r:system_lib_file:s0
 /system/lib/libmdf\.so u:object_r:system_lib_file:s0
+/system/lib/libsec_semRil\.so u:object_r:system_lib_file:s0
 /system/lib/libsqlite\.so u:object_r:system_lib_file:s0
+/system/lib/libtlc_blockchain_keystore\.so u:object_r:system_lib_file:s0
+/system/lib/libtlc_payment_spay\.so u:object_r:system_lib_file:s0
 /system/lib64 u:object_r:system_lib_file:s0
 /system/lib64/libandroid_servers\.so u:object_r:system_lib_file:s0
 /system/lib64/libepm\.so u:object_r:system_lib_file:s0
 /system/lib64/libmdf\.so u:object_r:system_lib_file:s0
+/system/lib64/libsec_semRil\.so u:object_r:system_lib_file:s0
 /system/lib64/libsqlite\.so u:object_r:system_lib_file:s0
+/system/lib64/libtlc_blockchain_keystore\.so u:object_r:system_lib_file:s0
+/system/lib64/libtlc_payment_spay\.so u:object_r:system_lib_file:s0
