@@ -157,6 +157,7 @@ fi
 # SEC_PRODUCT_FEATURE_COMMON_CONFIG_DYN_RESOLUTION_CONTROL
 if ! $SOURCE_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL; then
     if $TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL; then
+        [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "mssi" ]] && ABORT "\"mssi\" single system image does not support targets with TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL=$TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL. Aborting"
         SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_CONFIG_DYN_RESOLUTION_CONTROL" "WQHD,FHD,HD"
 
         ADD_TO_WORK_DIR "$([[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "qssi" ]] && echo "b0qxxx" || echo "b0sxxx")" \
@@ -379,6 +380,8 @@ if [[ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "$TARGET_FINGERPRINT_CONFIG_SENSOR"
             elif [[ "$(GET_FINGERPRINT_SENSOR_TYPE "$TARGET_FINGERPRINT_CONFIG_SENSOR")" != "ultrasonic" ]]; then
                 # TODO handle this condition
                 LOG_MISSING_PATCHES "SOURCE_FINGERPRINT_CONFIG_SENSOR" "TARGET_FINGERPRINT_CONFIG_SENSOR"
+            else
+                [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "mssi" ]] && ABORT "\"mssi\" single system image does not support targets with TARGET_FINGERPRINT_CONFIG_SENSOR=$TARGET_FINGERPRINT_CONFIG_SENSOR. Aborting" || true
             fi
         else
             # TODO handle this condition
