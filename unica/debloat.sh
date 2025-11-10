@@ -265,6 +265,8 @@ system/priv-app/IpsGeofence
 # Samsung Wallet
 SYSTEM_DEBLOAT+="
 system/etc/init/digitalkey_init_ble_tss2.rc
+system/etc/permissions/org.carconnectivity.android.digitalkey.rangingintent.xml
+system/etc/permissions/org.carconnectivity.android.digitalkey.secureelement.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.carkey.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.dkey.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.spayfw.xml
@@ -276,6 +278,10 @@ system/etc/sysconfig/preinstalled-packages-com.samsung.android.spayfw.xml
 system/priv-app/DigitalKey
 system/priv-app/PaymentFramework
 system/priv-app/SamsungCarKeyFw
+"
+SYSTEM_EXT_DEBLOAT+="
+framework/org.carconnectivity.android.digitalkey.rangingintent.jar
+framework/org.carconnectivity.android.digitalkey.secureelement.jar
 "
 
 # Search engine selector
