@@ -66,7 +66,7 @@ GET_IMAGE_SIZE()
 
 # [
 DEPENDENCIES=(
-    "awk" "basename" "bc" "brotli" "cat" "clang" "cmake"
+    "7z" "awk" "basename" "bc" "brotli" "cat" "clang" "cmake"
     "cp" "curl" "cut" "cwebp" "dd" "dirname" "du" "ffmpeg"
     "file" "fmt" "getfattr" "git" "grep" "head" "java" "ln"
     "lz4" "make" "md5sum" "mkdir" "mount" "mv" "pcre2test"
