@@ -33,7 +33,7 @@ jobs:
             firmware: "SM-S908B/EUX/353074281234565"
           - module: "Galaxy Z Flip4 (b4qxxx)"
             device: "b4qxxx"
-            firmware: "SM-F731B/EUX/350929871234569"
+            firmware: "SM-F721B/EUX/350525851234569"
           - module: "Galaxy S23 (dm1qxxx)"
             device: "dm1qxxx"
             firmware: "SM-S911B/EUX/352404911234563"
