@@ -32,22 +32,22 @@ UPDATE_BLOBS()
     local FILE_PATH
 
     if [ -d "$PREBUILTS_DIR/system" ]; then
-        BLOBS+="$(find "$PREBUILTS_DIR/system" -type f)"
+        BLOBS+="$(find "$PREBUILTS_DIR/system" ! -type d)"
         BLOBS="${BLOBS//$PREBUILTS_DIR/system}"
     fi
     if [ -d "$PREBUILTS_DIR/product" ]; then
         [ "$BLOBS" ] && BLOBS+=$'\n'
-        BLOBS+="$(find "$PREBUILTS_DIR/product" -type f)"
+        BLOBS+="$(find "$PREBUILTS_DIR/product" ! -type d)"
         BLOBS="${BLOBS//$PREBUILTS_DIR\//}"
     fi
     if [ -d "$PREBUILTS_DIR/vendor" ]; then
         [ "$BLOBS" ] && BLOBS+=$'\n'
-        BLOBS+="$(find "$PREBUILTS_DIR/vendor" -type f)"
+        BLOBS+="$(find "$PREBUILTS_DIR/vendor" ! -type d)"
         BLOBS="${BLOBS//$PREBUILTS_DIR\//}"
     fi
     if [ -d "$PREBUILTS_DIR/system_ext" ]; then
         [ "$BLOBS" ] && BLOBS+=$'\n'
-        BLOBS+="$(find "$PREBUILTS_DIR/system_ext" -type f)"
+        BLOBS+="$(find "$PREBUILTS_DIR/system_ext" ! -type d)"
         BLOBS="${BLOBS//$PREBUILTS_DIR\//}"
     fi
     BLOBS="$(LC_ALL=C sort <<< "$BLOBS")"
@@ -66,7 +66,8 @@ UPDATE_BLOBS()
 
         LOG "- Updating prebuilts/samsung/$DEVICE/$i"
 
-        if [ "$(wc -c "$FW_DIR/${MODEL}_${CSC}/$i" | cut -d " " -f 1)" -gt "52428800" ]; then
+        if [ ! -L "$FW_DIR/${MODEL}_${CSC}/$i" ] && \
+                [ "$(wc -c "$FW_DIR/${MODEL}_${CSC}/$i" | cut -d " " -f 1)" -gt "52428800" ]; then
             EVAL "rm \"$FILE_PATH.\"*" || exit 1
             EVAL "split -d -b 52428800 \"$FW_DIR/${MODEL}_${CSC}/$i\" \"$FILE_PATH.\"" || exit 1
         else
@@ -98,7 +99,7 @@ if [ ! "$LATEST_FIRMWARE" ]; then
     exit 1
 fi
 
-LOG_STEP_IN true "Start update_prebuilt_blobs for prebuilts/samsung/$DEVICE"
+LOG_STEP_IN true "Starting update_prebuilt_blobs for prebuilts/samsung/$DEVICE"
 LOG "- Current firmware: $(cat "$SRC_DIR/prebuilts/samsung/$DEVICE/.current" 2> /dev/null)"
 LOG "- Latest available firmware: $LATEST_FIRMWARE"
 
