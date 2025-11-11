@@ -111,7 +111,7 @@ jobs:
           commit-message: 'prebuilts/samsung/${{ matrix.device }}: update blobs to ${{ env.PDA_BUILD }}'
           committer: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
           author: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
-          branch: '${{ matrix.device }}'
+          branch: 'prebuilts/samsung/${{ matrix.device }}'
           delete-branch: true
           title: 'Update prebuilts/samsung/${{ matrix.device }} blobs to ${{ env.PDA_BUILD }}'
           body: ''
