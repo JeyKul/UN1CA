@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_allow_downgrade_title">Разрешить понижение версий приложений</string>
+    <string name="unica_asks_title">Отключить ASKS</string>
+    <string name="unica_boot_sound_title">Звук включения устройства</string>
+    <string name="unica_device_name_title">Имя устройства</string>
+    <string name="unica_dialog_reboot_msg">Для применения изменений необходима перезагрузка.</string>
+    <string name="unica_dialog_reboot_negative">Не сейчас</string>
+    <string name="unica_dialog_reboot_positive">Перезагрузка</string>
+    <string name="unica_dialog_reboot_title">Требуется перезагрузка</string>
+    <string name="unica_extra_settings_title">Дополнительные настройки</string>
+    <string name="unica_games_spoof_title">Разблокировка более высокого FPS в играх</string>
+    <string name="unica_keybox_toast_error">Произошла ошибка.</string>
+    <string name="unica_max_refresh_rate_title">Пиковая частота обновления экрана</string>
+    <string name="unica_native_blur_title">Включить эффект живого размытия</string>
+    <string name="unica_pif_toast_checking">Проверка обновлений…</string>
+    <string name="unica_pif_toast_error">Произошла ошибка.</string>
+    <string name="unica_pif_toast_up_to_date">"Вы используете последнюю версию."</string>
+    <string name="unica_pif_toast_updated">Обновление успешно завершено.</string>
+    <string name="unica_rom_version_title">Версия прошивки</string>
+    <string name="unica_secure_ss_title">Разрешить делать скриншот, если запрещено безопасностью</string>
+    <string name="unica_settings_title">Настройки UN1CA</string>
+    <string name="unica_spoof_settings_title">Настройки подмены</string>
+    <string name="unica_ui_settings_title">Настройки пользовательского интерфейса</string>
+    <string name="unica_updates_title">Обновления UN1CA</string>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_allow_downgrade_title">Uygulamaların sürümünü düşürmeye izin ver</string>
+    <string name="unica_allow_sdkbypass_title">Uygulamalarda SDK sürüm kısıtlamasını devre dışı bırak</string>
+    <string name="unica_asks_title">"ASKS'yi devre dışı bırak"</string>
+    <string name="unica_boot_sound_title">Cihaz açılış sesini etkinleştir</string>
+    <string name="unica_device_name_title">Cihaz İsmi</string>
+    <string name="unica_dialog_reboot_msg">Değişikliklerin uygulanabilmesi için cihazın yeniden başlatılması gerekiyor.</string>
+    <string name="unica_dialog_reboot_negative">Şimdi değil</string>
+    <string name="unica_dialog_reboot_positive">Yeniden başlat</string>
+    <string name="unica_dialog_reboot_title">Yeniden başlatma gerekli</string>
+    <string name="unica_extra_settings_title">Ekstra Ayarlar</string>
+    <string name="unica_games_spoof_title">Oyunlardaki kilitli grafik ayarlarını aç</string>
+    <string name="unica_keybox_toast_error">Bir hata oluştu.</string>
+    <string name="unica_max_refresh_rate_title">Ekranı yüksek yenileme hızına zorla</string>
+    <string name="unica_native_blur_title">Canlı bulanıklık efektini etkinleştir</string>
+    <string name="unica_pif_toast_checking">Güncellemeler kontrol ediliyor…</string>
+    <string name="unica_pif_toast_error">Bir hata oluştu.</string>
+    <string name="unica_pif_toast_up_to_date">"Son sürüme sahipsiniz."</string>
+    <string name="unica_pif_toast_updated">Güncelleme başarıyla tamamlandı.</string>
+    <string name="unica_rom_version_title">ROM sürümü</string>
+    <string name="unica_secure_ss_title">Güvenli uygulamalarda ekran görüntülerine izin ver</string>
+    <string name="unica_settings_title">UN1CA Ayarları</string>
+    <string name="unica_spoof_settings_title">Sistem aldatma ayarları</string>
+    <string name="unica_ui_settings_title">Arayüz Ayarları</string>
+    <string name="unica_updates_title">UN1CA Güncellemeleri</string>
+</resources>

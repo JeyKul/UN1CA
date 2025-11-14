@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_allow_downgrade_title">Tətbiq versiyasının aşağı salınmasına icazə ver</string>
+    <string name="unica_asks_title">ASKS-i deaktiv et</string>
+    <string name="unica_boot_sound_title">Telefonu başladarkən səs effektini çal</string>
+    <string name="unica_device_name_title">Cihaz adı</string>
+    <string name="unica_dialog_reboot_msg">Dəyişiklikləri tətbiq etmək üçün yenidən başlatma tələb olunur.</string>
+    <string name="unica_dialog_reboot_negative">İndi yox</string>
+    <string name="unica_dialog_reboot_positive">Yenidən başlat</string>
+    <string name="unica_dialog_reboot_title">Yenidən başlatma tələb olunur</string>
+    <string name="unica_extra_settings_title">Əlavə parametrlər</string>
+    <string name="unica_games_spoof_title">Oyunlarda daha yüksək FPS kilidini aç</string>
+    <string name="unica_keybox_toast_error">Xəta baş verdi.</string>
+    <string name="unica_max_refresh_rate_title">Ən yüksək yeniləmə tezliyinə məcbur et</string>
+    <string name="unica_native_blur_title">Canlı blur effektini aktivləşdir</string>
+    <string name="unica_pif_toast_checking">Yeniləmələr yoxlanılır…</string>
+    <string name="unica_pif_toast_error">Xəta baş verdi.</string>
+    <string name="unica_pif_toast_up_to_date">"Ən son versiyanı işlədirsiniz."</string>
+    <string name="unica_pif_toast_updated">Yeniləmə uğurla tamamlandı.</string>
+    <string name="unica_rom_version_title">ROM versiyası</string>
+    <string name="unica_secure_ss_title">Təhlükəsiz ekran görüntüsünə icazə ver</string>
+    <string name="unica_settings_title">UN1CA Parametrləri</string>
+    <string name="unica_spoof_settings_title">Saxtakarlıq parametrləri</string>
+    <string name="unica_ui_settings_title">İstifadəçi interfeysi parametrləri</string>
+    <string name="unica_updates_title">UN1CA Yeniləmələri</string>
+</resources>

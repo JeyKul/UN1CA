@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_allow_downgrade_title">Позволяване на даунгрейд на приложения</string>
+    <string name="unica_asks_title">Изключване на ASKS</string>
+    <string name="unica_boot_sound_title">Пускане на звуков ефект при включване</string>
+    <string name="unica_device_name_title">Име на устройството</string>
+    <string name="unica_dialog_reboot_negative">Не сега</string>
+    <string name="unica_dialog_reboot_positive">Рестартиране</string>
+    <string name="unica_dialog_reboot_title">Нужен е рестарт</string>
+    <string name="unica_extra_settings_title">Допълнителни настройки</string>
+    <string name="unica_games_spoof_title">Отключване на по-висок FPS в игри</string>
+    <string name="unica_keybox_toast_error">Настъпи грешка.</string>
+    <string name="unica_max_refresh_rate_title">Заключване на най-високата честота на опресняване</string>
+    <string name="unica_native_blur_title">Включване на blur ефект</string>
+    <string name="unica_pif_toast_checking">Проверка за актуализации…</string>
+    <string name="unica_pif_toast_error">Настъпи грешка.</string>
+    <string name="unica_pif_toast_up_to_date">"Вие използвате най-новата версия."</string>
+    <string name="unica_pif_toast_updated">Актуализацията премина успешно.</string>
+    <string name="unica_rom_version_title">ROM версия</string>
+    <string name="unica_secure_ss_title">Позволяване на скрийншот в защитени приложения</string>
+    <string name="unica_settings_title">UN1CA Настройки</string>
+    <string name="unica_spoof_settings_title">Spoof настройки</string>
+    <string name="unica_ui_settings_title">UI настройки</string>
+    <string name="unica_updates_title">UN1CA Актуализации</string>
+</resources>
