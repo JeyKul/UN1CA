@@ -9,6 +9,8 @@ fi
     SET_PROP "system" "ro.unica.version" "$ROM_VERSION"
 [ ! "$(GET_PROP "system" "ro.unica.timestamp")" ] && \
     SET_PROP "system" "ro.unica.timestamp" "$ROM_BUILD_TIMESTAMP"
+[ ! "$(GET_PROP "system" "ro.unica.device")" ] && \
+    SET_PROP "system" "ro.unica.device" "$TARGET_CODENAME"
 
 ADD_TO_WORK_DIR "$MODPATH" "system" "." 0 0 755 "u:object_r:system_file:s0"
 
