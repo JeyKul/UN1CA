@@ -8,6 +8,7 @@ else
     ABORT "Unknown SSI: $TARGET_OS_SINGLE_SYSTEM_IMAGE"
 fi
 
+DELETE_FROM_WORK_DIR "system" "system/app/BlockchainBasicKit"
 ADD_TO_WORK_DIR "$DONOR" "system" "system/bin/installd" 0 2000 755 "u:object_r:installd_exec:s0"
 ADD_TO_WORK_DIR "$DONOR" "system" "system/bin/vdc" 0 2000 755 "u:object_r:vdc_exec:s0"
 ADD_TO_WORK_DIR "$DONOR" "system" "system/bin/vold" 0 2000 755 "u:object_r:vold_exec:s0"
@@ -36,6 +37,7 @@ DELETE_FROM_WORK_DIR "system" "system/etc/permissions/privapp-permissions-com.sa
 DELETE_FROM_WORK_DIR "system" "system/etc/permissions/privapp-permissions-com.samsung.android.knox.sandbox.xml"
 DELETE_FROM_WORK_DIR "system" "system/etc/permissions/privapp-permissions-com.samsung.android.knox.zt.framework.xml"
 DELETE_FROM_WORK_DIR "system" "system/etc/permissions/signature-permissions-com.samsung.android.kgclient.xml"
+DELETE_FROM_WORK_DIR "system" "system/etc/sysconfig/preinstalled-packages-com.samsung.android.coldwalletservice.xml"
 DELETE_FROM_WORK_DIR "system" "system/lib/android.hardware.weaver@1.0.so"
 DELETE_FROM_WORK_DIR "system" "system/lib/hidl_comm_ddar_client.so"
 ADD_TO_WORK_DIR "$DONOR" "system" "system/lib/libandroid_servers.so" 0 0 644 "u:object_r:system_lib_file:s0"
@@ -304,9 +306,22 @@ APPLY_PATCH "system" "system/framework/services.jar" \
 APPLY_PATCH "system" "system/framework/framework.jar" \
     "$MODPATH/kmxai/framework.jar/0001-Nuke-Knox-Matrix-AI-Privacy.patch"
 
+# SEC_PRODUCT_FEATURE_FRAMEWORK_SUPPORT_BLOCKCHAIN_SERVICE
+SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_BLOCKCHAIN_SERVICE" --delete
+SMALI_PATCH "system" "system/framework/framework.jar" \
+    "smali_classes6/com/samsung/android/ProductPackagesRune.smali" "replaceall" \
+    "SERVICE_SAMSUNG_BLOCKCHAIN:Z = true" \
+    "SERVICE_SAMSUNG_BLOCKCHAIN:Z = false"
+if [[ "$TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR" == "none" ]] && [[ "$TARGET_SECURITY_CONFIG_ESE_COS_NAME" == "none" ]]; then
+    APPLY_PATCH "system" "system/framework/services.jar" \
+        "$MODPATH/ese+blockchain/services.jar/0001-Nuke-BlockchainTZService.patch"
+else
+    APPLY_PATCH "system" "system/framework/services.jar" \
+        "$MODPATH/blockchain/services.jar/0001-Nuke-BlockchainTZService.patch"
+fi
+
 # TODO get rid of the following features
 # SEC_PRODUCT_FEATURE_KNOX_SUPPORT_UCS
-# SEC_PRODUCT_FEATURE_FRAMEWORK_SUPPORT_BLOCKCHAIN_SERVICE
 # SEC_PRODUCT_FEATURE_FRAMEWORK_SUPPORT_MOBILE_PAYMENT
 
 LOG "- Restoring original SourceFile attribute in /system/system/framework/services.jar"
