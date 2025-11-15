@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Mediatek Compatibility Module
+# MediaTek Compatibility Module
 
 if [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" != "mssi" ]]; then
     LOG "\033[0;33m! Nothing to do\033[0m"
@@ -33,13 +33,13 @@ ADD_JAR_TO_CLASSPATH()
     _CHECK_NON_EMPTY_PARAM "SCOPE" "$2"
     _CHECK_NON_EMPTY_PARAM "JAR_PATH" "$3"
 
-    local CMD
     local FILE="$1"
     local SCOPE="$2"
     local JAR_PATH="$3"
     local MIN_API="$4"
     local MAX_API="$5"
     local PROTO="$MODPATH/classpaths.proto"
+    local CMD
 
     if [[ "$FILE" == "bootclasspath" ]]; then
         FILE="$WORK_DIR/system/system/etc/classpaths/bootclasspath.pb"
@@ -53,48 +53,42 @@ ADD_JAR_TO_CLASSPATH()
     fi
 
     if [[ "$SCOPE" != "UNKNOWN" ]] && [[ "$SCOPE" != "BOOTCLASSPATH" ]] && [[ "$SCOPE" != "SYSTEMSERVERCLASSPATH" ]] && \
-      [[ "$SCOPE" != "DEX2OATBOOTCLASSPATH" ]] && [[ "$SCOPE" != "STANDALONE_SYSTEMSERVER_JARS" ]]; then
-        LOGE "\"$SCOPE\" is not a valid scope."
+            [[ "$SCOPE" != "DEX2OATBOOTCLASSPATH" ]] && [[ "$SCOPE" != "STANDALONE_SYSTEMSERVER_JARS" ]]; then
+        LOGE "\"$SCOPE\" is not a valid scope"
         return 1
     fi
 
     # Decode given binary file to text
-    PDR="$(pwd)"
-    cd "$(dirname "$FILE")"
-    CMD="protoc --decode=ExportedClasspathsJars --proto_path="$(dirname "$PROTO")" "$(basename "$PROTO")" < "$(basename "$FILE")" > "$(basename "$FILE").txt""
-    EVAL "$CMD" || exit 1
+    EVAL "cd \"$(dirname "$FILE")\"; protoc --decode=ExportedClasspathsJars --proto_path=\"$(dirname "$PROTO")\" \"$(basename "$PROTO")\" < \"$(basename "$FILE")\" > \"$(basename "$FILE").txt\""
 
     # Add to the text file
-    echo "jars {" >> "$(basename "$FILE").txt"
-    echo "  path: \"$JAR_PATH\"" >> "$(basename "$FILE").txt"
-    echo "  classpath: $SCOPE" >> "$(basename "$FILE").txt"
-    if [ -n "$MIN_API" ]; then
-        echo "  min_sdk_version: \"$MIN_API\"" >> "$(basename "$FILE").txt"
-    fi
-    if [ -n "$MAX_API" ]; then
-        echo "  max_sdk_version: \"$MAX_API\"" >> "$(basename "$FILE").txt"
-    fi
-    echo "}" >> "$(basename "$FILE").txt"
+    {
+        echo "jars {"
+        echo "  path: \"$JAR_PATH\""
+        echo "  classpath: $SCOPE"
+        [ "$MIN_API" ] && echo "  min_sdk_version: \"$MIN_API\""
+        [ "$MAX_API" ] && echo "  max_sdk_version: \"$MAX_API\""
+        echo "}"
+    } >> "$(dirname "$FILE")/$(basename "$FILE").txt"
 
     # Encode back text file to binary
-    CMD="protoc --encode=ExportedClasspathsJars --proto_path="$(dirname "$PROTO")" "$(basename "$PROTO")" < "$(basename "$FILE").txt" > "$(basename "$FILE")""
-    EVAL "$CMD" || exit 1
-    rm "$(basename "$FILE").txt"
-    cd "$PDR"
+    CMD="cd \"$(dirname "$FILE")\"; protoc --encode=ExportedClasspathsJars --proto_path=\"$(dirname "$PROTO")\" \"$(basename "$PROTO")\" < \"$(basename "$FILE").txt\" > \"$(basename "$FILE")\""
+    EVAL "$CMD"
+    EVAL "rm \"$(dirname "$FILE")/$(basename "$FILE").txt\""
 }
 # ]
 
 if [[ "$SOURCE_EXTRA_FIRMWARES" != "SM-A346"* ]]; then
-    LOGE "- Unsupported firmware for Mediatek Compatibility Module"
+    LOGE "- Unsupported firmware for MediaTek Compatibility Module"
     exit 1
 fi
 
 # UN1CA: this patch is not complete! It relies on the whole build system and modules to produce a working
-# mediate-compatible image.
+# MediaTek-compatible image.
 
 IFS=':' read -a SOURCE_EXTRA_FIRMWARES <<< "$SOURCE_EXTRA_FIRMWARES"
-MODEL=$(echo -n "${SOURCE_EXTRA_FIRMWARES[0]}" | cut -d "/" -f 1)
-REGION=$(echo -n "${SOURCE_EXTRA_FIRMWARES[0]}" | cut -d "/" -f 2)
+MODEL=$(cut -d "/" -f 1 -s <<< "${SOURCE_EXTRA_FIRMWARES[0]}")
+REGION=$(cut -d "/" -f 2 -s <<< "${SOURCE_EXTRA_FIRMWARES[0]}")
 
 LOG_STEP_IN "- Patching system_ext"
 # bin, lib64, lib
@@ -325,18 +319,18 @@ done
     echo "libsuperresolution_raw.arcsoft.so"
 } >> "$WORK_DIR/system/system/etc/public.libraries-arcsoft.txt"
 
-# frameworks
+# Frameworks
 ADD_TO_WORK_DIR "$MODEL/$REGION" "system" "system/framework/verizon.net.sip.jar"
 ADD_TO_WORK_DIR "$MODEL/$REGION" "system" "system/framework/msync-lib.jar"
 
-# remove unsupported features
+# Remove unsupported features
 DELETE_FROM_WORK_DIR "system" "system/etc/public.libraries-edensdk.samsung.txt"
 
-# disable live blur and relumino
+# Disable live blur and Relumino
 SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_3D_SURFACE_TRANSITION_FLAG" --delete
 SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_RELUMINO_EFFECT_FLAG" --delete
 
-# bluetooth
+# Bluetooth
 ADD_TO_WORK_DIR "gts11xx" "system" "system/apex/com.android.bt.apex"
 
 LOG_STEP_OUT
@@ -347,13 +341,13 @@ LOG_STEP_IN "- Adding system properties"
 SET_PROP "system" "media.extractor.sec.dolby-lib-version" "$(GET_PROP "$FW_DIR/${MODEL}_${REGION}/system/system/build.prop" "media.extractor.sec.dolby-lib-version")"
 SET_PROP "system" "media.extractor.sec.pcm-32bit" --delete
 
-# Mediatek SSI info
+# MediaTek SSI info
 SET_PROP "system" "ro.mediatek.version.branch" "$(GET_PROP "$FW_DIR/${MODEL}_${REGION}/system/system/build.prop" "ro.mediatek.version.branch")"
 SET_PROP "system" "ro.mediatek.version.release" "$(GET_PROP "$FW_DIR/${MODEL}_${REGION}/system/system/build.prop" "ro.mediatek.version.release")"
 SET_PROP "system" "Build.BRAND" "MTK"
 SET_PROP "system" "ro.base_build" "noah"
 
-# Mediatek audio
+# MediaTek audio
 SET_PROP "system_ext" "ro.audio.ihaladaptervendorextension_enabled" "true"
 SET_PROP "system" "ro.audio.ihaladaptervendorextension_enabled" "true"
 SET_PROP "system" "ro.audio.usb.period_us" "16000"
@@ -365,16 +359,16 @@ SET_PROP "system" "persist.audio.deepbuffer_delay" "0"
 SET_PROP "system" "ro.camera.sound.forced" "0"
 SET_PROP "system" "ro.audio.silent" "0"
 
-# Mediatek surfaceflinger
+# MediaTek surfaceflinger
 SET_PROP "system" "debug.sf.enable_gl_backpressure" "0"
 SET_PROP "system" "debug.sf.treat_170m_as_sRGB" "1"
 SET_PROP "system" "debug.sf.predict_hwc_composition_strategy" "0"
 SET_PROP "system" "debug.sf.enable_transaction_tracing" "false"
 
-# Mediatek AEE (Android Exception Enhancement)
+# MediaTek AEE (Android Exception Enhancement)
 SET_PROP "system" "ro.vendor.have_aee_feature" "1"
 
-# Mediatek Connectivity (WLAN/RIL)
+# MediaTek Connectivity (WLAN/RIL)
 SET_PROP "system" "vendor.rild.libpath" "mtk-ril.so"
 SET_PROP "system" "vendor.rild.libargs" "-d /dev/ttyC0"
 SET_PROP "system" "wifi.interface" "wlan0"
@@ -394,13 +388,13 @@ SET_PROP "system" "persist.vendor.mtk.vilte.enable" "1"
 SET_PROP "system" "persist.vendor.vilte_support" "1"
 SET_PROP "system" "persist.vendor.pms_removable" "1"
 
-# Mediatek Media
+# MediaTek Media
 SET_PROP "system" "media.stagefright.thumbnail.prefer_hw_codecs" "true"
 SET_PROP "system" "vendor.mtk_thumbnail_optimization" "true"
 SET_PROP "system" "ro.vendor.mtk_flv_playback_support" "1"
 SET_PROP "system" "debug.stagefright.c2inputsurface" "-1"
 
-# Mediatek performance framework
+# MediaTek performance framework
 SET_PROP "system" "ro.mtk_perf_simple_start_win" "1"
 SET_PROP "system" "ro.mtk_perf_fast_start_win" "1"
 SET_PROP "system" "ro.mtk_perf_response_time" "1"
@@ -429,3 +423,6 @@ LOG_STEP_OUT
 
 APPLY_PATCH "system" "system/framework/framework.jar" "$MODPATH/pictureQuality/framework.jar/0001-Implement-MTK-PictureQuality.patch"
 APPLY_PATCH "system" "system/framework/services.jar" "$MODPATH/pictureQuality/services.jar/0001-Implement-MTK-PictureQuality.patch"
+
+unset MODEL REGION FTP VEX_LIBS LIBS
+unset -f ADD_JAR_TO_CLASSPATH

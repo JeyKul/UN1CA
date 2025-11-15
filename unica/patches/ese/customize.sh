@@ -47,7 +47,9 @@ if [[ "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" == "NXP" ]] && [[ "$SOURCE_SECUR
     DELETE_FROM_WORK_DIR "system" "system/priv-app/SEMFactoryApp"
     DELETE_FROM_WORK_DIR "system" "system/priv-app/SamsungSeAgent"
 elif [[ "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" != "none" ]] && [[ "$SOURCE_SECURITY_CONFIG_ESE_COS_NAME" != "none" ]]; then
-    [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "mssi" ]] && ABORT "\"mssi\" single system image does not support targets with eSE. Aborting"
+    [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "mssi" ]] && \
+        ABORT "\"mssi\" system image does not support targets with eSE. Aborting"
+
     [[ "$SOURCE_SECURITY_CONFIG_ESE_COS_NAME" != "$TARGET_SECURITY_CONFIG_ESE_COS_NAME" ]] &&
         SMALI_PATCH "system" "system/app/SecureElement/SecureElement.apk" \
             "smali/com/android/se/internal/UtilExtension.smali" "replace" \

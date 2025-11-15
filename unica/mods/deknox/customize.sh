@@ -6,9 +6,10 @@ elif [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "essi" ]]; then
     DONOR="a54xnsxx"
 elif [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "mssi" ]]; then
     IFS=':' read -a SOURCE_EXTRA_FIRMWARES <<< "$SOURCE_EXTRA_FIRMWARES"
-    MODEL=$(echo -n "${SOURCE_EXTRA_FIRMWARES[0]}" | cut -d "/" -f 1)
-    REGION=$(echo -n "${SOURCE_EXTRA_FIRMWARES[0]}" | cut -d "/" -f 2)
+    MODEL=$(cut -d "/" -f 1 -s <<< "${SOURCE_EXTRA_FIRMWARES[0]}")
+    REGION=$(cut -d "/" -f 2 -s <<< "${SOURCE_EXTRA_FIRMWARES[0]}")
     DONOR="$MODEL/$REGION"
+    unset MODEL REGION
 else
     ABORT "Unknown SSI: $TARGET_OS_SINGLE_SYSTEM_IMAGE"
 fi
@@ -87,7 +88,7 @@ if [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "qssi" ]]; then
     ADD_TO_WORK_DIR "$DONOR" "system" "system/lib64/service.incremental.so" 0 0 644 "u:object_r:system_lib_file:s0"
 fi
 
-if [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "mssi" || "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "qssi" ]]; then
+if [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "mssi" ]] || [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "qssi" ]]; then
     APPLY_PATCH "system" "system/framework/framework.jar" \
         "$MODPATH/vold/framework.jar/0001-Add-token-argument-in-unlockCeStorage.patch"
     APPLY_PATCH "system" "system/framework/services.jar" \

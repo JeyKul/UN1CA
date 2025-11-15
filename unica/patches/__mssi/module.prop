@@ -1,4 +1,4 @@
 id=mssi
-name=Mediatek-ify
+name=MediaTek-ify
 author=Fede2782
-description=Convert essi image to mssi image
+description=Converts an Exynos system image to a MediaTek system image.
