@@ -18,7 +18,7 @@
 
 .field private static final TAG:Ljava/lang/String; = "PIFUtils"
 
-.field private static final URL:Ljava/lang/String; = "https://raw.githubusercontent.com/salvogiangri/UN1CA/main/pif/pif.json"
+.field private static final URL:Ljava/lang/String; = "https://raw.githubusercontent.com/UN1CA/static_resources/refs/heads/sixteen/pif/pif.json"
 
 
 # direct methods
@@ -240,7 +240,7 @@
     :try_start_0
     new-instance v0, Ljava/net/URL;
 
-    const-string v1, "https://raw.githubusercontent.com/salvogiangri/UN1CA/main/pif/pif.json"
+    const-string v1, "https://raw.githubusercontent.com/UN1CA/static_resources/refs/heads/sixteen/pif/pif.json"
 
     invoke-direct {v0, v1}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
 
