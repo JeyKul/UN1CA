@@ -24,7 +24,8 @@ if [[ "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" == "NXP" ]] && [[ "$SOURCE_SECUR
     APPLY_PATCH "system" "system/app/SecureElement/SecureElement.apk" \
         "$MODPATH/ese/SecureElement.apk/0001-Disable-eSE-support.patch"
     DELETE_FROM_WORK_DIR "system" "system/bin/sem_daemon"
-    DELETE_FROM_WORK_DIR "system" "system/etc/init/sem.rc"
+    DELETE_FROM_WORK_DIR "system" "system/etc/init/sem.rc" 2>&1 | sed "/File not found/d"
+    DELETE_FROM_WORK_DIR "system" "system/etc/init/sem_early.rc" 2>&1 | sed "/File not found/d"
     DELETE_FROM_WORK_DIR "system" "system/etc/permissions/privapp-permissions-com.samsung.android.ese.xml"
     DELETE_FROM_WORK_DIR "system" "system/etc/permissions/privapp-permissions-com.sem.factoryapp.xml"
     APPLY_PATCH "system" "system/framework/framework.jar" "$MODPATH/ese/framework.jar/0001-Disable-SemService.patch"
