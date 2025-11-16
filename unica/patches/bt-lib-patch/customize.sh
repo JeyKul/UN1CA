@@ -28,7 +28,5 @@ fi
 # Disable VaultKeeper support
 # Before: [tbnz w8, #0, #0xbd260]
 # After: [b #0xbd260]
-if [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" != "mssi" ]]; then
-    HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
-        "2897773948050037" "289777392a000014"
-fi
+HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
+    "2897773948050037" "289777392a000014"
