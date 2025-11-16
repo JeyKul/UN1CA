@@ -21,9 +21,12 @@ SET_PROP_IF_DIFF "vendor" "ro.adb.secure" "0"
 # Do not filter out Samsung processes in logs
 SET_PROP_IF_DIFF "system" "persist.log.semlevel" "0xFFFFFFFF"
 
-RC_FILE="init.target.rc"
-[[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "mssi" ]] && RC_FILE="init.project.rc"
-if [ -f "$WORK_DIR/vendor/etc/init/hw/$RC_FILE" ]; then
+if [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "mssi" ]]; then
+    RC_FILE="init.project.rc"
+elif [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "qssi" ]]; then
+    RC_FILE="init.target.rc"
+fi
+if [ "$RC_FILE" ] && [ -f "$WORK_DIR/vendor/etc/init/hw/$RC_FILE" ]; then
     if ! grep -q "persist.vendor.radio.port_index" "$WORK_DIR/vendor/etc/init/hw/$RC_FILE"; then
         {
             echo ""
@@ -31,4 +34,5 @@ if [ -f "$WORK_DIR/vendor/etc/init/hw/$RC_FILE" ]; then
             echo "    setprop sys.usb.config adb"
         } >> "$WORK_DIR/vendor/etc/init/hw/$RC_FILE"
     fi
+    unset RC_FILE
 fi
