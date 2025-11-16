@@ -46,7 +46,7 @@
     <string name="unica_pif_toast_checking">Checking for updates…</string>
     <string name="unica_pif_toast_custom">Custom props loaded.</string>
     <string name="unica_pif_toast_error">An error occurred.</string>
-    <string name="unica_pif_toast_error_custom">Unvalid file.</string>
+    <string name="unica_pif_toast_error_custom">Invalid file.</string>
     <string name="unica_pif_toast_up_to_date">"You're running the latest version."</string>
     <string name="unica_pif_toast_updated">Update completed successfully.</string>
     <string name="unica_pif_update_title">Update Play Integrity Fix</string>
