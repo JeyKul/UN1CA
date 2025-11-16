@@ -150,11 +150,17 @@
 
     move-result v1
     :try_end_0
-    .catch Ljava/lang/NumberFormatException; {:try_start_0 .. :try_end_0} :catch_0
+    .catch Ljava/lang/NumberFormatException; {:try_start_0 .. :try_end_0} :catch_1
+    .catch Lorg/json/JSONException; {:try_start_0 .. :try_end_0} :catch_0
 
     goto :goto_0
 
     :catch_0
+    move-exception p0
+
+    goto :goto_1
+
+    :catch_1
     move v1, v0
 
     :goto_0
@@ -171,25 +177,42 @@
 
     move-result v0
     :try_end_1
-    .catch Ljava/lang/NumberFormatException; {:try_start_1 .. :try_end_1} :catch_1
+    .catch Ljava/lang/NumberFormatException; {:try_start_1 .. :try_end_1} :catch_2
+    .catch Lorg/json/JSONException; {:try_start_1 .. :try_end_1} :catch_0
 
-    :catch_1
+    :catch_2
     if-ge v1, v0, :cond_0
 
+    :try_start_2
     invoke-static {p0}, Lio/mesalabs/unica/settings/pif/PIFUtils;->setPIFProps(Lorg/json/JSONObject;)V
 
     const/4 p0, 0x1
 
     invoke-static {p1, p0}, Lio/mesalabs/unica/settings/pif/PIFUtils;->showToast(Landroid/content/Context;I)V
 
-    goto :goto_1
+    goto :goto_2
 
     :cond_0
     const/4 p0, 0x2
 
     invoke-static {p1, p0}, Lio/mesalabs/unica/settings/pif/PIFUtils;->showToast(Landroid/content/Context;I)V
+    :try_end_2
+    .catch Lorg/json/JSONException; {:try_start_2 .. :try_end_2} :catch_0
+
+    goto :goto_2
 
     :goto_1
+    const-string v0, "PIFUtils"
+
+    const-string v1, "Exception: "
+
+    invoke-static {v0, v1, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    const/4 p0, 0x4
+
+    invoke-static {p1, p0}, Lio/mesalabs/unica/settings/pif/PIFUtils;->showToast(Landroid/content/Context;I)V
+
+    :goto_2
     invoke-static {p1}, Lio/mesalabs/unica/settings/pif/PIFUtils;->killGMS(Landroid/content/Context;)V
 
     invoke-static {}, Lio/mesalabs/unica/settings/pif/PIFUtils;->getFormattedPIFVersion()Ljava/lang/CharSequence;
@@ -495,7 +518,7 @@
 
     invoke-virtual {v15, v5, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    invoke-virtual {v1, v4, v14}, Ljava/util/Properties;->getProperty(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-virtual {v1, v4}, Ljava/util/Properties;->getProperty(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
@@ -573,6 +596,21 @@
 
 .method private static setPIFProps(Lorg/json/JSONObject;)V
     .locals 3
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Lorg/json/JSONException;
+        }
+    .end annotation
+
+    const-string v0, "FINGERPRINT"
+
+    invoke-virtual {p0, v0}, Lorg/json/JSONObject;->getString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v1, "persist.sys.pif.fingerprint"
+
+    invoke-static {v1, v0}, Landroid/os/SemSystemProperties;->set(Ljava/lang/String;Ljava/lang/String;)V
 
     const-string v0, "VERSION"
 
@@ -665,16 +703,6 @@
     move-result-object v0
 
     const-string v2, "persist.sys.pif.id"
-
-    invoke-static {v2, v0}, Landroid/os/SemSystemProperties;->set(Ljava/lang/String;Ljava/lang/String;)V
-
-    const-string v0, "FINGERPRINT"
-
-    invoke-virtual {p0, v0, v1}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    const-string v2, "persist.sys.pif.fingerprint"
 
     invoke-static {v2, v0}, Landroid/os/SemSystemProperties;->set(Ljava/lang/String;Ljava/lang/String;)V
 
