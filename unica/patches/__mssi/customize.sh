@@ -223,6 +223,9 @@ DELETE_FROM_WORK_DIR "system" "system/lib64/libtensorflowlite_inference_api.myfi
 DELETE_FROM_WORK_DIR "system" "system/lib64/libdualcam_portraitlighting_gallery_360_lite.so"
 
 LIBS="
+system/lib64/extractors/libsapeextractor.so
+system/lib64/extractors/libsdffextractor.so
+system/lib64/extractors/libsdsfextractor.so
 system/lib64/libscalenetpkg.so
 system/lib64/libSceneDetector_v1.camera.samsung.so
 system/lib64/libimage_enhancement.arcsoft.so
