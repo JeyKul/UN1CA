@@ -104,6 +104,8 @@ GENERATE_BUILD_INFO()
         echo "version=$ROM_VERSION"
         echo "timestamp=$ROM_BUILD_TIMESTAMP"
         echo "security_patch_version=$(GET_PROP "system" "ro.build.version.security_patch")"
+        # TODO
+        echo "incremental=0"
     } > "$BUILD_INFO_FILE"
 }
 
