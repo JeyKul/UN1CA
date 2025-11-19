@@ -240,6 +240,9 @@ if $SOURCE_COMMON_SUPPORT_HDR_EFFECT; then
             "$MODPATH/mdnie/hdr/SecSettings.apk/0001-Disable-HDR-Settings.patch"
         APPLY_PATCH "system" "system/priv-app/SettingsProvider/SettingsProvider.apk" \
             "$MODPATH/mdnie/hdr/SettingsProvider.apk/0001-Disable-HDR-Settings.patch"
+    else
+        [ ! "$(GET_FLOATING_FEATURE "SEC_FLOATING_FEATURE_COMMON_SUPPORT_HDR_EFFECT")" ] && \
+            SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_SUPPORT_HDR_EFFECT" "TRUE"
     fi
 else
     if $TARGET_COMMON_SUPPORT_HDR_EFFECT; then
@@ -771,8 +774,6 @@ if $SOURCE_WLAN_SUPPORT_80211AX; then
     if $TARGET_WLAN_SUPPORT_80211AX; then
         if ! $SOURCE_WLAN_SUPPORT_80211AX_6GHZ; then
             if $TARGET_WLAN_SUPPORT_80211AX_6GHZ; then
-                ADD_TO_WORK_DIR "b0qxxx" "product" "overlay/SoftapOverlay6GHz/SoftapOverlay6GHz.apk" 0 0 644 "u:object_r:system_file:s0"
-
                 APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
                     "$MODPATH/wifi/80211ax_6ghz/semwifi-service.jar/0001-Enable-80211AX_6GHZ-support.patch"
                 APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
@@ -919,6 +920,8 @@ fi
 
 # SEC_PRODUCT_FEATURE_WLAN_SUPPORT_MOBILEAP_6G
 if ! $SOURCE_WLAN_SUPPORT_MOBILEAP_6G && $TARGET_WLAN_SUPPORT_MOBILEAP_6G; then
+    ADD_TO_WORK_DIR "b0qxxx" "product" "overlay/SoftapOverlay6GHz/SoftapOverlay6GHz.apk" 0 0 644 "u:object_r:system_file:s0"
+
     SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
         "smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali" "replaceall" \
         "SPF_6G=false" \
@@ -928,6 +931,8 @@ if ! $SOURCE_WLAN_SUPPORT_MOBILEAP_6G && $TARGET_WLAN_SUPPORT_MOBILEAP_6G; then
         "isSupportMobileAp6G()Z" \
         "true"
 elif $SOURCE_WLAN_SUPPORT_MOBILEAP_6G && ! $TARGET_WLAN_SUPPORT_MOBILEAP_6G; then
+    DELETE_FROM_WORK_DIR "product" "overlay/SoftapOverlay6GHz"
+
     SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
         "smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali" "replaceall" \
         "SPF_6G=true" \
