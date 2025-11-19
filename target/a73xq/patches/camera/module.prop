@@ -1,4 +1,4 @@
 id=camera
-name=Camera fix
+name=Camera blobs
 author=salvogiangri
-description=Various camera-related patches.
+description=Adds target device camera blobs.
