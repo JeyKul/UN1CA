@@ -241,7 +241,7 @@ if $SOURCE_COMMON_SUPPORT_HDR_EFFECT; then
         APPLY_PATCH "system" "system/priv-app/SettingsProvider/SettingsProvider.apk" \
             "$MODPATH/mdnie/hdr/SettingsProvider.apk/0001-Disable-HDR-Settings.patch"
     else
-        [ ! "$(GET_FLOATING_FEATURE "SEC_FLOATING_FEATURE_COMMON_SUPPORT_HDR_EFFECT")" ] && \
+        [ ! "$(GET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_SUPPORT_HDR_EFFECT")" ] && \
             SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_SUPPORT_HDR_EFFECT" "TRUE"
     fi
 else
