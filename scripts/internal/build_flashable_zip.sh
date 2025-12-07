@@ -277,7 +277,6 @@ GENERATE_UPDATER_SCRIPT()
     local HAS_VENDOR_DLKM=false
     local HAS_ODM_DLKM=false
     local HAS_SYSTEM_DLKM=false
-    local HAS_POST_INSTALL=false
 
     [ -f "$TMP_DIR/boot.img" ] && HAS_BOOT=true
     [ -f "$TMP_DIR/dtbo.img" ] && HAS_DTBO=true
@@ -292,7 +291,6 @@ GENERATE_UPDATER_SCRIPT()
     [ -f "$TMP_DIR/vendor_dlkm.new.dat${BROTLI_EXTENSION}" ] && HAS_VENDOR_DLKM=true && PARTITION_COUNT=$((PARTITION_COUNT + 1))
     [ -f "$TMP_DIR/odm_dlkm.new.dat${BROTLI_EXTENSION}" ] && HAS_ODM_DLKM=true && PARTITION_COUNT=$((PARTITION_COUNT + 1))
     [ -f "$TMP_DIR/system_dlkm.new.dat${BROTLI_EXTENSION}" ] && HAS_SYSTEM_DLKM=true && PARTITION_COUNT=$((PARTITION_COUNT + 1))
-    [ -f "$SRC_DIR/target/$TARGET_CODENAME/postinstall.edify" ] && HAS_POST_INSTALL=true
 
     {
         if [ -n "$TARGET_ASSERT_MODEL" ]; then
@@ -425,8 +423,8 @@ GENERATE_UPDATER_SCRIPT()
             echo    '/boot");'
         fi
 
-        if $HAS_POST_INSTALL; then
-            cat "$SRC_DIR/target/$TARGET_CODENAME/postinstall.edify"
+        if [ -f "$SRC_DIR/target/$TARGET_CODENAME/installer/install-end.edify" ]; then
+            cat "$SRC_DIR/target/$TARGET_CODENAME/installer/install-end.edify"
         fi
 
         echo    'set_progress(1.000000);'
