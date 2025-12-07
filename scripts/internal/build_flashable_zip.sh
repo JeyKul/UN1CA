@@ -311,6 +311,10 @@ GENERATE_UPDATER_SCRIPT()
             echo    '\" devices; this is a \"" + getprop("ro.product.device") + "\".");'
         fi
 
+        if [ -f "$SRC_DIR/target/$TARGET_CODENAME/installer/assertions.edify" ]; then
+            cat "$SRC_DIR/target/$TARGET_CODENAME/installer/assertions.edify"
+        fi
+
         PRINT_HEADER
 
         # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/common.py#4007
