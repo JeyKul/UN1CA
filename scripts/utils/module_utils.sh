@@ -117,7 +117,7 @@ GET_GALAXY_STORE_DOWNLOAD_URL()
     local OUT
     local REQUEST
     for i in "${DEVICES[@]}"; do
-        OUT="$(curl -L -s "https://vas.samsungapps.com/stub/stubUpdateCheck.as?appId=$PACKAGE&versionCode=0&deviceId=$i&mcc=262&mnc=01&csc=EUX&sdkVer=$OS&oneUiVersion=$ONEUI")"
+        OUT="$(curl -L -s "https://vas.samsungapps.com/stub/stubUpdateCheck.as?appId=$PACKAGE&versionCode=0&deviceId=$i&mcc=262&mnc=01&csc=EUX&sdkVer=$OS&oneUiVersion=$ONEUI&systemId=0")"
         OUT="$(grep -o -P "(?<=<productId>)[^<]+" <<< "$OUT")"
         if [ ! "$OUT" ]; then
             continue
