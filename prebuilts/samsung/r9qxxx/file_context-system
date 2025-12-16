@@ -12,6 +12,7 @@
 /system/lib/libdk_native_keymaster\.so u:object_r:system_lib_file:s0
 /system/lib/libgui\.so u:object_r:system_lib_file:s0
 /system/lib/libhdcp2\.so u:object_r:system_lib_file:s0
+/system/lib/libhwui\.so u:object_r:system_lib_file:s0
 /system/lib/libkeymaster4_1support\.so u:object_r:system_lib_file:s0
 /system/lib/libkeymaster4support\.so u:object_r:system_lib_file:s0
 /system/lib/libremotedisplay_wfd\.so u:object_r:system_lib_file:s0
@@ -26,6 +27,7 @@
 /system/lib64/lib_nativeJni\.dk\.samsung\.so u:object_r:system_lib_file:s0
 /system/lib64/libdk_native_keymaster\.so u:object_r:system_lib_file:s0
 /system/lib64/libgui\.so u:object_r:system_lib_file:s0
+/system/lib64/libhwui\.so u:object_r:system_lib_file:s0
 /system/lib64/libui\.so u:object_r:system_lib_file:s0
 /system/priv-app u:object_r:system_file:s0
 /system/priv-app/BiometricSetting u:object_r:system_file:s0

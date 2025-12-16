@@ -34,8 +34,8 @@ else
     LOG_STEP_OUT
 fi
 
-ADD_TO_WORK_DIR "a73xqxx" "system" "system/lib/libhwui.so" 0 0 644 "u:object_r:system_lib_file:s0"
-ADD_TO_WORK_DIR "a73xqxx" "system" "system/lib64/libhwui.so" 0 0 644 "u:object_r:system_lib_file:s0"
+ADD_TO_WORK_DIR "r9qxxx" "system" "system/lib/libhwui.so" 0 0 644 "u:object_r:system_lib_file:s0"
+ADD_TO_WORK_DIR "r9qxxx" "system" "system/lib64/libhwui.so" 0 0 644 "u:object_r:system_lib_file:s0"
 
 LOG_STEP_IN "- Adding HIDL face biometrics libs"
 ADD_TO_WORK_DIR "r9qxxx" "system" "system/lib/android.hardware.biometrics.face@1.0.so" 0 0 644 "u:object_r:system_lib_file:s0"
