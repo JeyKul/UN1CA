@@ -28,9 +28,6 @@ VENDOR_DEBLOAT+="
 etc/dpolicy
 "
 
-# Samsung GameDriver
-SYSTEM_DEBLOAT+="$(find "$WORK_DIR/system" -type d -name "*Driver-*" | sed "s|$WORK_DIR/system/||g")"
-
 # Samsung PROCA certificate DB
 SYSTEM_DEBLOAT+="
 system/etc/proca.db
