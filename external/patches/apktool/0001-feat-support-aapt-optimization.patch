@@ -1,4 +1,4 @@
-From 378605e8b1d13f9cedc866f1d43ec5bd48de4268 Mon Sep 17 00:00:00 2001
+From 6336284663b2c67cd05df315335b33c6a647099c Mon Sep 17 00:00:00 2001
 From: Kofua <1638183271zjn@gmail.com>
 Date: Sat, 30 Mar 2024 22:18:41 +0800
 Subject: [PATCH] feat: support aapt optimization
@@ -10,27 +10,27 @@ Subject: [PATCH] feat: support aapt optimization
  3 files changed, 108 insertions(+)
 
 diff --git a/brut.apktool/apktool-cli/src/main/java/brut/apktool/Main.java b/brut.apktool/apktool-cli/src/main/java/brut/apktool/Main.java
-index 68b1ccbf..7dad0339 100644
+index 3ed6cc46..6db3b1d5 100644
 --- a/brut.apktool/apktool-cli/src/main/java/brut/apktool/Main.java
 +++ b/brut.apktool/apktool-cli/src/main/java/brut/apktool/Main.java
 @@ -159,6 +159,21 @@ public class Main {
          .desc("Disable repacking of the built files into a new apk.")
-         .build();
+         .get();
  
 +    private static final Option buildShortenResPathsOption = Option.builder("srp")
 +        .longOpt("shorten-res-paths")
 +        .desc("Shortens the paths of resources inside the APK.")
-+        .build();
++        .get();
 +
 +    private static final Option buildEnableSparseEncodingOption = Option.builder("ese")
 +        .longOpt("enable-sparse-encoding")
 +        .desc("Enables encoding of sparse entries using a binary search tree. This option is useful for optimization of APK size but at the cost of resource retrieval performance.")
-+        .build();
++        .get();
 +
 +    private static final Option buildCollapseResNamesOption = Option.builder("crn")
 +        .longOpt("collapse-res-names")
 +        .desc("Collapses resource names to a single value in the key string pool.")
-+        .build();
++        .get();
 +
      private static final Option buildNoCrunchOption = Option.builder()
          .longOpt("no-crunch")
@@ -45,7 +45,7 @@ index 68b1ccbf..7dad0339 100644
                  buildOptions.addOption(buildNoCrunchOption);
              }
          }
-@@ -549,6 +567,15 @@ public class Main {
+@@ -543,6 +561,15 @@ public class Main {
          if (cli.hasOption(buildNoApkOption)) {
              config.setNoApk(true);
          }
@@ -62,7 +62,7 @@ index 68b1ccbf..7dad0339 100644
              config.setNoCrunch(true);
          }
 diff --git a/brut.apktool/apktool-lib/src/main/java/brut/androlib/Config.java b/brut.apktool/apktool-lib/src/main/java/brut/androlib/Config.java
-index 63382424..f768c47a 100644
+index cbd516b5..f50b7f69 100644
 --- a/brut.apktool/apktool-lib/src/main/java/brut/androlib/Config.java
 +++ b/brut.apktool/apktool-lib/src/main/java/brut/androlib/Config.java
 @@ -49,6 +49,12 @@ public class Config {
@@ -184,5 +184,5 @@ index 85892e71..3e76f11d 100644
      }
  }
 -- 
-2.51.0
+2.52.0
 
