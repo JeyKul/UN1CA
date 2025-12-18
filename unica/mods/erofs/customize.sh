@@ -3,7 +3,25 @@ if [ "$TARGET_PRODUCT_SHIPPING_API_LEVEL" -ge "33" ]; then
     return 0
 fi
 
+# [
 _LOG() { if $DEBUG; then LOGW "$1"; else ABORT "$1"; fi }
+
+PATCH_FSTAB()
+{
+    local f
+
+    while IFS= read -r f; do
+        if [[ "$f" == *"emmc" ]] || [[ "$f" == *"ramplus" ]]; then
+            continue
+        fi
+        sed -E -i \
+            '/^(system|vendor|product|system_ext|odm|vendor_dlkm|odm_dlkm|system_dlkm)\s+/ s/(\s+\S+\s+)\S+/\1erofs/' \
+            "$f" && LOG "- Patching $(sed -e "s|$WORK_DIR||g" -e "s|$TMP_DIR/out/ramdisk_extracted|$BOOT_FILE|g" <<< "$f")" \
+            || true
+        EVAL "uniq \"$f\" \"$TMP_DIR/tmp\" && mv -f \"$TMP_DIR/tmp\" \"$f\""
+    done < <(find "$1" -type f -name "fstab.*")
+}
+# ]
 
 if [[ "$TARGET_OS_FILE_SYSTEM_TYPE" != "erofs" ]]; then
     _LOG "TARGET_OS_FILE_SYSTEM_TYPE is not set to erofs"
@@ -29,49 +47,41 @@ EVAL "cp -a \"$WORK_DIR/kernel/$BOOT_FILE\" \"$TMP_DIR/$BOOT_FILE\""
 
 MKBOOTIMG_ARGS="$(unpack_bootimg --boot_img "$TMP_DIR/$BOOT_FILE" --out "$TMP_DIR/out" --format mkbootimg 2>&1)"
 
-RAMDISK_FILE="$(find "$TMP_DIR/out" -type f -name "*ramdisk" | head -n 1)"
-if [ ! "$RAMDISK_FILE" ]; then
-    ABORT "Failed to extract $BOOT_FILE\n\n$MKBOOTIMG_ARGS"
-fi
-
-LOG "- Extracting ramdisk"
-
-RAMDISK_FORMAT=""
-if [[ "$(READ_BYTES_AT "$RAMDISK_FILE" "0" "2")" == "8b1f" ]]; then
-    RAMDISK_FORMAT="gz"
-fi
-if [[ "$(READ_BYTES_AT "$RAMDISK_FILE" "0" "4")" == "184c2102" ]]; then
-    RAMDISK_FORMAT="lz4"
-fi
-if [ ! "$RAMDISK_FORMAT" ]; then
-    ABORT "Ramdisk format not valid\n\n$(LC_ALL=C file -b "$RAMDISK_FILE")"
-fi
-
-EVAL "mkdir -p \"$TMP_DIR/out/ramdisk_extracted\""
-if [[ "$RAMDISK_FORMAT" == "gz" ]]; then
-    EVAL "cat \"$RAMDISK_FILE\" | gzip -d | cpio --quiet -i -D \"$TMP_DIR/out/ramdisk_extracted\""
-elif [[ "$RAMDISK_FORMAT" == "lz4" ]]; then
-    EVAL "cat \"$RAMDISK_FILE\" | lz4 -d | cpio --quiet -i -D \"$TMP_DIR/out/ramdisk_extracted\""
-fi
-
 while IFS= read -r f; do
-    if [[ "$f" == *"emmc" ]] || [[ "$f" == *"ramplus" ]]; then
-        continue
+    LOG "- Extracting $BOOT_FILE/$(basename "$f")"
+
+    RAMDISK_FORMAT=""
+    if [[ "$(READ_BYTES_AT "$f" "0" "2")" == "8b1f" ]]; then
+        RAMDISK_FORMAT="gz"
     fi
-    sed -E -i \
-        '/^(system|vendor|product|system_ext|odm|vendor_dlkm|odm_dlkm|system_dlkm)\s+/ s/(\s+\S+\s+)\S+/\1erofs/' \
-        "$f" && LOG "- Patching $(sed -e "s|$WORK_DIR||g" -e "s|$TMP_DIR/out/ramdisk_extracted|$BOOT_FILE|g" <<< "$f")" \
-        || true
-    EVAL "cat \"$f\" | uniq > \"$TMP_DIR/tmp\" && mv -f \"$TMP_DIR/tmp\" \"$f\""
-done < <(find "$TMP_DIR/out/ramdisk_extracted" "$WORK_DIR/vendor/etc" -type f -name "fstab.*")
+    if [[ "$(READ_BYTES_AT "$f" "0" "4")" == "184c2102" ]]; then
+        RAMDISK_FORMAT="lz4"
+    fi
+    if [ ! "$RAMDISK_FORMAT" ]; then
+        ABORT "Ramdisk format not valid\n\n$(LC_ALL=C file -b "$f")"
+    fi
 
-LOG "- Repacking ramdisk"
+    EVAL "mkdir -p \"$TMP_DIR/out/ramdisk_extracted\""
+    if [[ "$RAMDISK_FORMAT" == "gz" ]]; then
+        EVAL "cat \"$f\" | gzip -d | cpio --quiet -i -D \"$TMP_DIR/out/ramdisk_extracted\""
+    elif [[ "$RAMDISK_FORMAT" == "lz4" ]]; then
+        EVAL "cat \"$f\" | lz4 -d | cpio --quiet -i -D \"$TMP_DIR/out/ramdisk_extracted\""
+    fi
 
-if [[ "$RAMDISK_FORMAT" == "gz" ]]; then
-    EVAL "mkbootfs \"$TMP_DIR/out/ramdisk_extracted\" | gzip > \"$RAMDISK_FILE\""
-elif [[ "$RAMDISK_FORMAT" == "lz4" ]]; then
-    EVAL "mkbootfs \"$TMP_DIR/out/ramdisk_extracted\" | lz4 -l -12 --favor-decSpeed > \"$RAMDISK_FILE\""
-fi
+    PATCH_FSTAB "$TMP_DIR/out/ramdisk_extracted"
+
+    LOG "- Repacking $BOOT_FILE/$(basename "$f")"
+
+    if [[ "$RAMDISK_FORMAT" == "gz" ]]; then
+        EVAL "mkbootfs \"$TMP_DIR/out/ramdisk_extracted\" | gzip > \"$f\""
+    elif [[ "$RAMDISK_FORMAT" == "lz4" ]]; then
+        EVAL "mkbootfs \"$TMP_DIR/out/ramdisk_extracted\" | lz4 -l -12 --favor-decSpeed > \"$f\""
+    fi
+
+    EVAL "rm -rf \"$TMP_DIR/out/ramdisk_extracted\""
+done < <(find "$TMP_DIR/out" -type f -name "*ramdisk*" | LC_ALL=C sort)
+
+PATCH_FSTAB "$WORK_DIR/vendor/etc"
 
 LOG "- Repacking $BOOT_FILE"
 
@@ -86,4 +96,4 @@ fi
 EVAL "rm -rf \"$TMP_DIR\""
 
 unset BOOT_FILE MKBOOTIMG_ARGS RAMDISK_FILE RAMDISK_FORMAT
-unset -f _LOG
+unset -f _LOG PATCH_FSTAB
