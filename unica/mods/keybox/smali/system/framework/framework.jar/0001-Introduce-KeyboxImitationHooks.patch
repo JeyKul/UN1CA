@@ -1,4 +1,4 @@
-From 9b3ef3f59aa690357ba4ad629007981ec3c4134b Mon Sep 17 00:00:00 2001
+From a0484916ebe11d0bd8c38b711870a8998a53e558 Mon Sep 17 00:00:00 2001
 From: Salvo Giangreco <giangrecosalvo9@gmail.com>
 Date: Mon, 6 Oct 2025 15:12:32 +0200
 Subject: [PATCH] Introduce KeyboxImitationHooks
@@ -10,20 +10,21 @@ Subject: [PATCH] Introduce KeyboxImitationHooks
  .../provider/asymmetric/EC$Mappings.smali     |   14 +-
  .../io/mesalabs/unica/IKeyboxProvider.smali   |   20 +
  ...oxProvider$$ExternalSyntheticLambda0.smali |   28 +
- ...roviderManager$DefaultKeyboxProvider.smali |  731 +++++
+ ...roviderManager$DefaultKeyboxProvider.smali |  701 +++++
  .../unica/KeyProviderManager-IA.smali         |    3 +
  .../mesalabs/unica/KeyProviderManager.smali   |   91 +
  .../unica/KeyboxChainGenerator$Digest.smali   |  141 +
  ...eyboxChainGenerator$KeyGenParameters.smali |  642 ++++
- .../mesalabs/unica/KeyboxChainGenerator.smali | 1565 ++++++++++
- .../mesalabs/unica/KeyboxImitationHooks.smali | 2666 +++++++++++++++++
- ...eyboxOperationUtils$DecryptOperation.smali |  268 ++
- ...OperationUtils$KeyAgreementOperation.smali |  194 ++
- .../KeyboxOperationUtils$SignOperation.smali  |  223 ++
+ .../mesalabs/unica/KeyboxChainGenerator.smali | 1563 ++++++++++
+ .../io/mesalabs/unica/KeyboxDbHelper.smali    |  546 ++++
+ .../mesalabs/unica/KeyboxImitationHooks.smali | 2719 +++++++++++++++++
+ ...eyboxOperationUtils$DecryptOperation.smali |  249 ++
+ ...OperationUtils$KeyAgreementOperation.smali |  177 ++
+ .../KeyboxOperationUtils$SignOperation.smali  |  210 ++
  .../mesalabs/unica/KeyboxOperationUtils.smali |  127 +
  ...eyboxUtils$$ExternalSyntheticLambda0.smali |   30 +
- .../io/mesalabs/unica/KeyboxUtils.smali       | 2272 ++++++++++++++
- 19 files changed, 9133 insertions(+), 24 deletions(-)
+ .../io/mesalabs/unica/KeyboxUtils.smali       | 2078 +++++++++++++
+ 20 files changed, 9457 insertions(+), 24 deletions(-)
  create mode 100644 smali_classes6/io/mesalabs/unica/IKeyboxProvider.smali
  create mode 100644 smali_classes6/io/mesalabs/unica/KeyProviderManager$DefaultKeyboxProvider$$ExternalSyntheticLambda0.smali
  create mode 100644 smali_classes6/io/mesalabs/unica/KeyProviderManager$DefaultKeyboxProvider.smali
@@ -32,6 +33,7 @@ Subject: [PATCH] Introduce KeyboxImitationHooks
  create mode 100644 smali_classes6/io/mesalabs/unica/KeyboxChainGenerator$Digest.smali
  create mode 100644 smali_classes6/io/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters.smali
  create mode 100644 smali_classes6/io/mesalabs/unica/KeyboxChainGenerator.smali
+ create mode 100644 smali_classes6/io/mesalabs/unica/KeyboxDbHelper.smali
  create mode 100644 smali_classes6/io/mesalabs/unica/KeyboxImitationHooks.smali
  create mode 100644 smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$DecryptOperation.smali
  create mode 100644 smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$KeyAgreementOperation.smali
@@ -41,7 +43,7 @@ Subject: [PATCH] Introduce KeyboxImitationHooks
  create mode 100644 smali_classes6/io/mesalabs/unica/KeyboxUtils.smali
 
 diff --git a/smali_classes3/android/security/KeyStore2.smali b/smali_classes3/android/security/KeyStore2.smali
-index 80753521..9bb3f076 100644
+index 80753521..217b4e3c 100644
 --- a/smali_classes3/android/security/KeyStore2.smali
 +++ b/smali_classes3/android/security/KeyStore2.smali
 @@ -558,7 +558,7 @@
@@ -63,12 +65,12 @@ index 80753521..9bb3f076 100644
 +    invoke-direct {v0, v1}, Landroid/security/KeyStoreSecurityLevel;-><init>(Landroid/system/keystore2/IKeystoreSecurityLevel;)V
  
 -    invoke-direct {v0, p0}, Landroid/security/KeyStoreSecurityLevel;-><init>(Landroid/system/keystore2/IKeystoreSecurityLevel;)V
-+    invoke-static {p0}, Lio/mesalabs/unica/KeyboxImitationHooks;->setSecurityLevel(I)V
++    invoke-static {v1, p0}, Lio/mesalabs/unica/KeyboxImitationHooks;->setSecurityLevel(Landroid/system/keystore2/IKeystoreSecurityLevel;I)V
  
      return-object v0
  .end method
 diff --git a/smali_classes3/android/system/keystore2/IKeystoreSecurityLevel$Stub$Proxy.smali b/smali_classes3/android/system/keystore2/IKeystoreSecurityLevel$Stub$Proxy.smali
-index 3f9a0c3e..7f15f8a7 100644
+index 3f9a0c3e..09d89d0b 100644
 --- a/smali_classes3/android/system/keystore2/IKeystoreSecurityLevel$Stub$Proxy.smali
 +++ b/smali_classes3/android/system/keystore2/IKeystoreSecurityLevel$Stub$Proxy.smali
 @@ -145,6 +145,15 @@
@@ -143,7 +145,7 @@ index 3f9a0c3e..7f15f8a7 100644
          }
      .end annotation
  
-+    invoke-static {p0, p1, p2, p3}, Lio/mesalabs/unica/KeyboxImitationHooks;->onGenerateKey(Landroid/system/keystore2/IKeystoreSecurityLevel;Landroid/system/keystore2/KeyDescriptor;Landroid/system/keystore2/KeyDescriptor;[Landroid/hardware/security/keymint/KeyParameter;)Landroid/system/keystore2/KeyMetadata;
++    invoke-static {p1, p2, p3}, Lio/mesalabs/unica/KeyboxImitationHooks;->onGenerateKey(Landroid/system/keystore2/KeyDescriptor;Landroid/system/keystore2/KeyDescriptor;[Landroid/hardware/security/keymint/KeyParameter;)Landroid/system/keystore2/KeyMetadata;
 +
 +    move-result-object v0
 +
@@ -177,7 +179,7 @@ index 3f9a0c3e..7f15f8a7 100644
          }
      .end annotation
  
-+    invoke-static {p0, p1, p3, p5}, Lio/mesalabs/unica/KeyboxImitationHooks;->onImportKey(Landroid/system/keystore2/IKeystoreSecurityLevel;Landroid/system/keystore2/KeyDescriptor;[Landroid/hardware/security/keymint/KeyParameter;[B)Landroid/system/keystore2/KeyMetadata;
++    invoke-static {p1, p3, p5}, Lio/mesalabs/unica/KeyboxImitationHooks;->onImportKey(Landroid/system/keystore2/KeyDescriptor;[Landroid/hardware/security/keymint/KeyParameter;[B)Landroid/system/keystore2/KeyMetadata;
 +
 +    move-result-object v0
 +
@@ -506,10 +508,10 @@ index 00000000..c7df7288
 +.end method
 diff --git a/smali_classes6/io/mesalabs/unica/KeyProviderManager$DefaultKeyboxProvider.smali b/smali_classes6/io/mesalabs/unica/KeyProviderManager$DefaultKeyboxProvider.smali
 new file mode 100644
-index 00000000..25ed07a8
+index 00000000..55bffa71
 --- /dev/null
 +++ b/smali_classes6/io/mesalabs/unica/KeyProviderManager$DefaultKeyboxProvider.smali
-@@ -0,0 +1,731 @@
+@@ -0,0 +1,701 @@
 +.class Lio/mesalabs/unica/KeyProviderManager$DefaultKeyboxProvider;
 +.super Ljava/lang/Object;
 +.source "KeyProviderManager.java"
@@ -554,7 +556,7 @@ index 00000000..25ed07a8
 +
 +    iput-object v0, p0, Lio/mesalabs/unica/KeyProviderManager$DefaultKeyboxProvider;->keyboxData:Ljava/util/Map;
 +
-+    invoke-static {}, Lio/mesalabs/unica/KeyProviderManager$DefaultKeyboxProvider;->getApplicationContext()Landroid/content/Context;
++    invoke-static {}, Lio/mesalabs/unica/KeyboxUtils;->getApplicationContext()Landroid/content/Context;
 +
 +    move-result-object v0
 +
@@ -580,36 +582,6 @@ index 00000000..25ed07a8
 +    invoke-direct {p0}, Lio/mesalabs/unica/KeyProviderManager$DefaultKeyboxProvider;-><init>()V
 +
 +    return-void
-+.end method
-+
-+.method private static blacklist getApplicationContext()Landroid/content/Context;
-+    .locals 3
-+
-+    :try_start_0
-+    invoke-static {}, Landroid/app/ActivityThread;->currentApplication()Landroid/app/Application;
-+
-+    move-result-object v0
-+
-+    invoke-virtual {v0}, Landroid/app/Application;->getApplicationContext()Landroid/content/Context;
-+
-+    move-result-object v0
-+    :try_end_0
-+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
-+
-+    return-object v0
-+
-+    :catch_0
-+    move-exception v0
-+
-+    const-string v1, "KeyProviderManager"
-+
-+    const-string v2, "Error getting application context"
-+
-+    invoke-static {v1, v2, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
-+
-+    const/4 v0, 0x0
-+
-+    return-object v0
 +.end method
 +
 +.method private blacklist getCertificateChain(Ljava/lang/String;)[Ljava/lang/String;
@@ -2144,10 +2116,10 @@ index 00000000..4d36f345
 +.end method
 diff --git a/smali_classes6/io/mesalabs/unica/KeyboxChainGenerator.smali b/smali_classes6/io/mesalabs/unica/KeyboxChainGenerator.smali
 new file mode 100644
-index 00000000..228262c3
+index 00000000..5bcce989
 --- /dev/null
 +++ b/smali_classes6/io/mesalabs/unica/KeyboxChainGenerator.smali
-@@ -0,0 +1,1565 @@
+@@ -0,0 +1,1563 @@
 +.class final Lio/mesalabs/unica/KeyboxChainGenerator;
 +.super Ljava/lang/Object;
 +.source "KeyboxChainGenerator.java"
@@ -3354,9 +3326,7 @@ index 00000000..228262c3
 +
 +    iget-object v10, v10, Landroid/util/Pair;->second:Ljava/lang/Object;
 +
-+    check-cast v10, Landroid/system/keystore2/KeyEntryResponse;
-+
-+    iget-object v10, v10, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++    check-cast v10, Landroid/system/keystore2/KeyMetadata;
 +
 +    iget-object v10, v10, Landroid/system/keystore2/KeyMetadata;->certificate:[B
 +
@@ -3713,12 +3683,564 @@ index 00000000..228262c3
 +
 +    return-object p0
 +.end method
+diff --git a/smali_classes6/io/mesalabs/unica/KeyboxDbHelper.smali b/smali_classes6/io/mesalabs/unica/KeyboxDbHelper.smali
+new file mode 100644
+index 00000000..5154eca6
+--- /dev/null
++++ b/smali_classes6/io/mesalabs/unica/KeyboxDbHelper.smali
+@@ -0,0 +1,546 @@
++.class final Lio/mesalabs/unica/KeyboxDbHelper;
++.super Landroid/database/sqlite/SQLiteOpenHelper;
++.source "KeyboxDbHelper.java"
++
++
++# static fields
++.field private static final blacklist COLUMN_KEY_ALIAS:Ljava/lang/String; = "key_alias"
++
++.field private static final blacklist COLUMN_KEY_ID:Ljava/lang/String; = "key_id"
++
++.field private static final blacklist COLUMN_KEY_MATERIAL:Ljava/lang/String; = "key_material"
++
++.field private static final blacklist COLUMN_KEY_METADATA:Ljava/lang/String; = "key_metadata"
++
++.field private static final blacklist DATABASE_NAME:Ljava/lang/String; = "unica_keystore.db"
++
++.field private static final blacklist DATABASE_VERSION:I = 0x1
++
++.field private static final blacklist SQL_CREATE_ENTRIES:Ljava/lang/String; = "CREATE TABLE key_entries (key_id INTEGER PRIMARY KEY NOT NULL,key_alias TEXT NOT NULL,key_material BLOB NOT NULL,key_metadata BLOB NOT NULL)"
++
++.field private static final blacklist SQL_DELETE_ENTRIES:Ljava/lang/String; = "DROP TABLE IF EXISTS key_entries"
++
++.field private static final blacklist TABLE_NAME:Ljava/lang/String; = "key_entries"
++
++.field private static final blacklist TAG:Ljava/lang/String; = "KeyboxDbHelper"
++
++.field private static blacklist sInstance:Lio/mesalabs/unica/KeyboxDbHelper;
++
++
++# direct methods
++.method private constructor blacklist <init>(Landroid/content/Context;)V
++    .locals 3
++
++    const/4 v0, 0x0
++
++    const/4 v1, 0x1
++
++    const-string v2, "unica_keystore.db"
++
++    invoke-direct {p0, p1, v2, v0, v1}, Landroid/database/sqlite/SQLiteOpenHelper;-><init>(Landroid/content/Context;Ljava/lang/String;Landroid/database/sqlite/SQLiteDatabase$CursorFactory;I)V
++
++    return-void
++.end method
++
++.method static blacklist getInstance()Lio/mesalabs/unica/KeyboxDbHelper;
++    .locals 2
++
++    sget-object v0, Lio/mesalabs/unica/KeyboxDbHelper;->sInstance:Lio/mesalabs/unica/KeyboxDbHelper;
++
++    if-nez v0, :cond_1
++
++    invoke-static {}, Lio/mesalabs/unica/KeyboxUtils;->getApplicationContext()Landroid/content/Context;
++
++    move-result-object v0
++
++    if-nez v0, :cond_0
++
++    const-string v0, "KeyboxDbHelper"
++
++    const-string v1, "Failed to get application context"
++
++    invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
++
++    const/4 v0, 0x0
++
++    return-object v0
++
++    :cond_0
++    new-instance v1, Lio/mesalabs/unica/KeyboxDbHelper;
++
++    invoke-direct {v1, v0}, Lio/mesalabs/unica/KeyboxDbHelper;-><init>(Landroid/content/Context;)V
++
++    sput-object v1, Lio/mesalabs/unica/KeyboxDbHelper;->sInstance:Lio/mesalabs/unica/KeyboxDbHelper;
++
++    :cond_1
++    sget-object v0, Lio/mesalabs/unica/KeyboxDbHelper;->sInstance:Lio/mesalabs/unica/KeyboxDbHelper;
++
++    return-object v0
++.end method
++
++.method private blacklist marshallKeyMetadata(Landroid/system/keystore2/KeyMetadata;)[B
++    .locals 1
++
++    invoke-static {}, Landroid/os/Parcel;->obtain()Landroid/os/Parcel;
++
++    move-result-object p0
++
++    const/4 v0, 0x0
++
++    invoke-virtual {p1, p0, v0}, Landroid/system/keystore2/KeyMetadata;->writeToParcel(Landroid/os/Parcel;I)V
++
++    invoke-virtual {p0}, Landroid/os/Parcel;->marshall()[B
++
++    move-result-object p1
++
++    invoke-virtual {p0}, Landroid/os/Parcel;->recycle()V
++
++    return-object p1
++.end method
++
++.method private blacklist unmarshallKeyMetadata([B)Landroid/system/keystore2/KeyMetadata;
++    .locals 2
++
++    invoke-static {}, Landroid/os/Parcel;->obtain()Landroid/os/Parcel;
++
++    move-result-object p0
++
++    array-length v0, p1
++
++    const/4 v1, 0x0
++
++    invoke-virtual {p0, p1, v1, v0}, Landroid/os/Parcel;->unmarshall([BII)V
++
++    invoke-virtual {p0, v1}, Landroid/os/Parcel;->setDataPosition(I)V
++
++    sget-object p1, Landroid/system/keystore2/KeyMetadata;->CREATOR:Landroid/os/Parcelable$Creator;
++
++    invoke-interface {p1, p0}, Landroid/os/Parcelable$Creator;->createFromParcel(Landroid/os/Parcel;)Ljava/lang/Object;
++
++    move-result-object p1
++
++    check-cast p1, Landroid/system/keystore2/KeyMetadata;
++
++    invoke-virtual {p0}, Landroid/os/Parcel;->recycle()V
++
++    return-object p1
++.end method
++
++
++# virtual methods
++.method blacklist deleteKeyData(J)Z
++    .locals 3
++
++    invoke-virtual {p0}, Lio/mesalabs/unica/KeyboxDbHelper;->getWritableDatabase()Landroid/database/sqlite/SQLiteDatabase;
++
++    move-result-object p0
++
++    const/4 v0, 0x1
++
++    new-array v1, v0, [Ljava/lang/String;
++
++    invoke-static {p1, p2}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
++
++    move-result-object p1
++
++    const/4 p2, 0x0
++
++    aput-object p1, v1, p2
++
++    const-string p1, "key_entries"
++
++    const-string v2, "key_id= ?"
++
++    invoke-virtual {p0, p1, v2, v1}, Landroid/database/sqlite/SQLiteDatabase;->delete(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)I
++
++    move-result p0
++
++    if-eqz p0, :cond_0
++
++    return v0
++
++    :cond_0
++    return p2
++.end method
++
++.method blacklist fetchKeyData(J)Landroid/util/Pair;
++    .locals 8
++    .annotation system Ldalvik/annotation/Signature;
++        value = {
++            "(J)",
++            "Landroid/util/Pair<",
++            "Ljava/security/KeyPair;",
++            "Landroid/system/keystore2/KeyMetadata;",
++            ">;"
++        }
++    .end annotation
++
++    invoke-virtual {p0}, Lio/mesalabs/unica/KeyboxDbHelper;->getReadableDatabase()Landroid/database/sqlite/SQLiteDatabase;
++
++    move-result-object v0
++
++    const/4 v1, 0x1
++
++    new-array v4, v1, [Ljava/lang/String;
++
++    const/4 v1, 0x0
++
++    invoke-static {p1, p2}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
++
++    move-result-object p1
++
++    aput-object p1, v4, v1
++
++    const/4 v6, 0x0
++
++    const/4 v7, 0x0
++
++    const-string v1, "key_entries"
++
++    const/4 v2, 0x0
++
++    const-string v3, "key_id = ?"
++
++    const/4 v5, 0x0
++
++    invoke-virtual/range {v0 .. v7}, Landroid/database/sqlite/SQLiteDatabase;->query(Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Landroid/database/Cursor;
++
++    move-result-object p1
++
++    if-eqz p1, :cond_0
++
++    invoke-interface {p1}, Landroid/database/Cursor;->moveToFirst()Z
++
++    move-result p2
++
++    if-eqz p2, :cond_0
++
++    :try_start_0
++    new-instance p2, Landroid/util/Pair;
++
++    const-string v0, "key_material"
++
++    invoke-interface {p1, v0}, Landroid/database/Cursor;->getColumnIndexOrThrow(Ljava/lang/String;)I
++
++    move-result v0
++
++    invoke-interface {p1, v0}, Landroid/database/Cursor;->getBlob(I)[B
++
++    move-result-object v0
++
++    invoke-static {v0}, Lio/mesalabs/unica/KeyboxUtils;->generateKeyPairFromKeyData([B)Ljava/security/KeyPair;
++
++    move-result-object v0
++
++    const-string v1, "key_metadata"
++
++    invoke-interface {p1, v1}, Landroid/database/Cursor;->getColumnIndexOrThrow(Ljava/lang/String;)I
++
++    move-result v1
++
++    invoke-interface {p1, v1}, Landroid/database/Cursor;->getBlob(I)[B
++
++    move-result-object v1
++
++    invoke-direct {p0, v1}, Lio/mesalabs/unica/KeyboxDbHelper;->unmarshallKeyMetadata([B)Landroid/system/keystore2/KeyMetadata;
++
++    move-result-object p0
++
++    invoke-direct {p2, v0, p0}, Landroid/util/Pair;-><init>(Ljava/lang/Object;Ljava/lang/Object;)V
++    :try_end_0
++    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
++    .catchall {:try_start_0 .. :try_end_0} :catchall_0
++
++    invoke-interface {p1}, Landroid/database/Cursor;->close()V
++
++    return-object p2
++
++    :catchall_0
++    move-exception v0
++
++    move-object p0, v0
++
++    goto :goto_0
++
++    :catch_0
++    move-exception v0
++
++    move-object p0, v0
++
++    :try_start_1
++    const-string p2, "KeyboxDbHelper"
++
++    const-string v0, "Error deserializing key data"
++
++    invoke-static {p2, v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
++    :try_end_1
++    .catchall {:try_start_1 .. :try_end_1} :catchall_0
++
++    invoke-interface {p1}, Landroid/database/Cursor;->close()V
++
++    goto :goto_1
++
++    :goto_0
++    invoke-interface {p1}, Landroid/database/Cursor;->close()V
++
++    throw p0
++
++    :cond_0
++    :goto_1
++    const/4 p0, 0x0
++
++    return-object p0
++.end method
++
++.method blacklist fetchKeyEntries(Ljava/lang/String;)[Landroid/system/keystore2/KeyDescriptor;
++    .locals 10
++
++    invoke-virtual {p0}, Lio/mesalabs/unica/KeyboxDbHelper;->getReadableDatabase()Landroid/database/sqlite/SQLiteDatabase;
++
++    move-result-object v0
++
++    const/4 p0, 0x1
++
++    new-array v2, p0, [Ljava/lang/String;
++
++    const-string v1, "key_alias"
++
++    const/4 v8, 0x0
++
++    aput-object v1, v2, v8
++
++    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
++
++    move-result v1
++
++    const/4 v9, 0x0
++
++    if-eqz v1, :cond_0
++
++    move-object v3, v9
++
++    goto :goto_0
++
++    :cond_0
++    const-string v1, "key_alias > ?"
++
++    move-object v3, v1
++
++    :goto_0
++    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
++
++    move-result v1
++
++    if-eqz v1, :cond_1
++
++    move-object v4, v9
++
++    goto :goto_1
++
++    :cond_1
++    new-array p0, p0, [Ljava/lang/String;
++
++    aput-object p1, p0, v8
++
++    move-object v4, p0
++
++    :goto_1
++    const/4 v6, 0x0
++
++    const-string v7, "key_alias ASC"
++
++    const-string v1, "key_entries"
++
++    const/4 v5, 0x0
++
++    invoke-virtual/range {v0 .. v7}, Landroid/database/sqlite/SQLiteDatabase;->query(Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Landroid/database/Cursor;
++
++    move-result-object p0
++
++    new-instance p1, Ljava/util/ArrayList;
++
++    invoke-direct {p1}, Ljava/util/ArrayList;-><init>()V
++
++    if-eqz p0, :cond_3
++
++    :goto_2
++    invoke-interface {p0}, Landroid/database/Cursor;->moveToNext()Z
++
++    move-result v0
++
++    if-eqz v0, :cond_2
++
++    new-instance v0, Landroid/system/keystore2/KeyDescriptor;
++
++    invoke-direct {v0}, Landroid/system/keystore2/KeyDescriptor;-><init>()V
++
++    iput v8, v0, Landroid/system/keystore2/KeyDescriptor;->domain:I
++
++    const-wide/16 v1, -0x1
++
++    iput-wide v1, v0, Landroid/system/keystore2/KeyDescriptor;->nspace:J
++
++    invoke-interface {p0, v8}, Landroid/database/Cursor;->getString(I)Ljava/lang/String;
++
++    move-result-object v1
++
++    iput-object v1, v0, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
++
++    iput-object v9, v0, Landroid/system/keystore2/KeyDescriptor;->blob:[B
++
++    invoke-virtual {p1, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
++
++    goto :goto_2
++
++    :cond_2
++    invoke-interface {p0}, Landroid/database/Cursor;->close()V
++
++    :cond_3
++    new-array p0, v8, [Landroid/system/keystore2/KeyDescriptor;
++
++    invoke-virtual {p1, p0}, Ljava/util/ArrayList;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
++
++    move-result-object p0
++
++    check-cast p0, [Landroid/system/keystore2/KeyDescriptor;
++
++    return-object p0
++.end method
++
++.method public blacklist onCreate(Landroid/database/sqlite/SQLiteDatabase;)V
++    .locals 0
++
++    const-string p0, "CREATE TABLE key_entries (key_id INTEGER PRIMARY KEY NOT NULL,key_alias TEXT NOT NULL,key_material BLOB NOT NULL,key_metadata BLOB NOT NULL)"
++
++    invoke-virtual {p1, p0}, Landroid/database/sqlite/SQLiteDatabase;->execSQL(Ljava/lang/String;)V
++
++    return-void
++.end method
++
++.method public blacklist onDowngrade(Landroid/database/sqlite/SQLiteDatabase;II)V
++    .locals 0
++
++    invoke-virtual {p0, p1, p2, p3}, Lio/mesalabs/unica/KeyboxDbHelper;->onUpgrade(Landroid/database/sqlite/SQLiteDatabase;II)V
++
++    return-void
++.end method
++
++.method public blacklist onUpgrade(Landroid/database/sqlite/SQLiteDatabase;II)V
++    .locals 0
++
++    const-string p2, "DROP TABLE IF EXISTS key_entries"
++
++    invoke-virtual {p1, p2}, Landroid/database/sqlite/SQLiteDatabase;->execSQL(Ljava/lang/String;)V
++
++    invoke-virtual {p0, p1}, Lio/mesalabs/unica/KeyboxDbHelper;->onCreate(Landroid/database/sqlite/SQLiteDatabase;)V
++
++    return-void
++.end method
++
++.method blacklist storeKeyData(Ljava/lang/String;Ljava/security/KeyPair;Landroid/system/keystore2/KeyMetadata;)V
++    .locals 4
++
++    invoke-virtual {p0}, Lio/mesalabs/unica/KeyboxDbHelper;->getWritableDatabase()Landroid/database/sqlite/SQLiteDatabase;
++
++    move-result-object v0
++
++    new-instance v1, Landroid/content/ContentValues;
++
++    invoke-direct {v1}, Landroid/content/ContentValues;-><init>()V
++
++    invoke-virtual {p1}, Ljava/lang/String;->hashCode()I
++
++    move-result v2
++
++    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
++
++    move-result-object v2
++
++    const-string v3, "key_id"
++
++    invoke-virtual {v1, v3, v2}, Landroid/content/ContentValues;->put(Ljava/lang/String;Ljava/lang/Integer;)V
++
++    const-string v2, "key_alias"
++
++    invoke-virtual {v1, v2, p1}, Landroid/content/ContentValues;->put(Ljava/lang/String;Ljava/lang/String;)V
++
++    invoke-virtual {p2}, Ljava/security/KeyPair;->getPrivate()Ljava/security/PrivateKey;
++
++    move-result-object p1
++
++    invoke-interface {p1}, Ljava/security/PrivateKey;->getEncoded()[B
++
++    move-result-object p1
++
++    const-string p2, "key_material"
++
++    invoke-virtual {v1, p2, p1}, Landroid/content/ContentValues;->put(Ljava/lang/String;[B)V
++
++    const-string p1, "key_metadata"
++
++    invoke-direct {p0, p3}, Lio/mesalabs/unica/KeyboxDbHelper;->marshallKeyMetadata(Landroid/system/keystore2/KeyMetadata;)[B
++
++    move-result-object p0
++
++    invoke-virtual {v1, p1, p0}, Landroid/content/ContentValues;->put(Ljava/lang/String;[B)V
++
++    const-string p0, "key_entries"
++
++    const/4 p1, 0x0
++
++    invoke-virtual {v0, p0, p1, v1}, Landroid/database/sqlite/SQLiteDatabase;->replace(Ljava/lang/String;Ljava/lang/String;Landroid/content/ContentValues;)J
++
++    return-void
++.end method
++
++.method blacklist updateKeyData(JLjava/security/KeyPair;Landroid/system/keystore2/KeyMetadata;)V
++    .locals 3
++
++    invoke-virtual {p0}, Lio/mesalabs/unica/KeyboxDbHelper;->getWritableDatabase()Landroid/database/sqlite/SQLiteDatabase;
++
++    move-result-object v0
++
++    new-instance v1, Landroid/content/ContentValues;
++
++    invoke-direct {v1}, Landroid/content/ContentValues;-><init>()V
++
++    invoke-virtual {p3}, Ljava/security/KeyPair;->getPrivate()Ljava/security/PrivateKey;
++
++    move-result-object p3
++
++    invoke-interface {p3}, Ljava/security/PrivateKey;->getEncoded()[B
++
++    move-result-object p3
++
++    const-string v2, "key_material"
++
++    invoke-virtual {v1, v2, p3}, Landroid/content/ContentValues;->put(Ljava/lang/String;[B)V
++
++    const-string p3, "key_metadata"
++
++    invoke-direct {p0, p4}, Lio/mesalabs/unica/KeyboxDbHelper;->marshallKeyMetadata(Landroid/system/keystore2/KeyMetadata;)[B
++
++    move-result-object p0
++
++    invoke-virtual {v1, p3, p0}, Landroid/content/ContentValues;->put(Ljava/lang/String;[B)V
++
++    const/4 p0, 0x1
++
++    new-array p0, p0, [Ljava/lang/String;
++
++    const/4 p3, 0x0
++
++    invoke-static {p1, p2}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
++
++    move-result-object p1
++
++    aput-object p1, p0, p3
++
++    const-string p1, "key_entries"
++
++    const-string p2, "key_id = ?"
++
++    invoke-virtual {v0, p1, v1, p2, p0}, Landroid/database/sqlite/SQLiteDatabase;->update(Ljava/lang/String;Landroid/content/ContentValues;Ljava/lang/String;[Ljava/lang/String;)I
++
++    return-void
++.end method
 diff --git a/smali_classes6/io/mesalabs/unica/KeyboxImitationHooks.smali b/smali_classes6/io/mesalabs/unica/KeyboxImitationHooks.smali
 new file mode 100644
-index 00000000..bf92c59d
+index 00000000..8d839262
 --- /dev/null
 +++ b/smali_classes6/io/mesalabs/unica/KeyboxImitationHooks.smali
-@@ -0,0 +1,2666 @@
+@@ -0,0 +1,2719 @@
 +.class public final Lio/mesalabs/unica/KeyboxImitationHooks;
 +.super Ljava/lang/Object;
 +.source "KeyboxImitationHooks.java"
@@ -3729,7 +4251,9 @@ index 00000000..bf92c59d
 +
 +.field private static final blacklist TAG:Ljava/lang/String; = "KeyboxImitationHooks"
 +
-+.field private static blacklist sSecurityLevel:I = 0x1
++.field private static blacklist sSecurityLevel:Landroid/system/keystore2/IKeystoreSecurityLevel; = null
++
++.field private static blacklist sSecurityLevelType:I = 0x1
 +
 +
 +# direct methods
@@ -3741,98 +4265,219 @@ index 00000000..bf92c59d
 +    return-void
 +.end method
 +
-+.method private static blacklist buildResponse(Landroid/system/keystore2/IKeystoreSecurityLevel;Ljava/util/List;Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;Landroid/system/keystore2/KeyDescriptor;II)Landroid/system/keystore2/KeyEntryResponse;
-+    .locals 8
++.method private static blacklist buildMetadata(Ljava/util/List;Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;Landroid/system/keystore2/KeyDescriptor;II)Landroid/system/keystore2/KeyMetadata;
++    .locals 7
 +    .annotation system Ldalvik/annotation/Signature;
 +        value = {
 +            "(",
-+            "Landroid/system/keystore2/IKeystoreSecurityLevel;",
 +            "Ljava/util/List<",
 +            "Ljava/security/cert/Certificate;",
 +            ">;",
 +            "Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;",
 +            "Landroid/system/keystore2/KeyDescriptor;",
 +            "II)",
-+            "Landroid/system/keystore2/KeyEntryResponse;"
++            "Landroid/system/keystore2/KeyMetadata;"
 +        }
 +    .end annotation
 +
 +    :try_start_0
-+    new-instance v0, Landroid/system/keystore2/KeyEntryResponse;
++    new-instance v0, Landroid/system/keystore2/KeyMetadata;
 +
-+    invoke-direct {v0}, Landroid/system/keystore2/KeyEntryResponse;-><init>()V
++    invoke-direct {v0}, Landroid/system/keystore2/KeyMetadata;-><init>()V
 +
-+    new-instance v1, Landroid/system/keystore2/KeyMetadata;
++    const/4 v1, 0x0
 +
-+    invoke-direct {v1}, Landroid/system/keystore2/KeyMetadata;-><init>()V
++    if-eqz p0, :cond_0
 +
-+    const/4 v2, 0x0
++    invoke-interface {p0}, Ljava/util/List;->isEmpty()Z
 +
-+    if-eqz p1, :cond_0
++    move-result v2
 +
-+    invoke-interface {p1}, Ljava/util/List;->isEmpty()Z
++    if-nez v2, :cond_0
 +
-+    move-result v3
++    new-array v2, v1, [Ljava/security/cert/Certificate;
 +
-+    if-nez v3, :cond_0
++    invoke-interface {p0, v2}, Ljava/util/List;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
 +
-+    new-array v3, v2, [Ljava/security/cert/Certificate;
++    move-result-object p0
 +
-+    invoke-interface {p1, v3}, Ljava/util/List;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
++    check-cast p0, [Ljava/security/cert/Certificate;
 +
-+    move-result-object p1
-+
-+    check-cast p1, [Ljava/security/cert/Certificate;
-+
-+    invoke-static {v1, p1}, Lio/mesalabs/unica/KeyboxUtils;->putCertificateChain(Landroid/system/keystore2/KeyMetadata;[Ljava/security/cert/Certificate;)V
++    invoke-static {v0, p0}, Lio/mesalabs/unica/KeyboxUtils;->putCertificateChain(Landroid/system/keystore2/KeyMetadata;[Ljava/security/cert/Certificate;)V
 +
 +    :cond_0
 +    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 +
-+    move-result-wide v3
++    move-result-wide v2
 +
-+    iput-wide v3, v1, Landroid/system/keystore2/KeyMetadata;->modificationTimeMs:J
++    iput-wide v2, v0, Landroid/system/keystore2/KeyMetadata;->modificationTimeMs:J
 +
-+    iput p4, v1, Landroid/system/keystore2/KeyMetadata;->keySecurityLevel:I
++    iput p3, v0, Landroid/system/keystore2/KeyMetadata;->keySecurityLevel:I
 +
-+    new-instance p1, Landroid/system/keystore2/KeyDescriptor;
++    new-instance p0, Landroid/system/keystore2/KeyDescriptor;
 +
-+    invoke-direct {p1}, Landroid/system/keystore2/KeyDescriptor;-><init>()V
++    invoke-direct {p0}, Landroid/system/keystore2/KeyDescriptor;-><init>()V
 +
-+    const/4 v3, 0x4
++    const/4 v2, 0x4
 +
-+    iput v3, p1, Landroid/system/keystore2/KeyDescriptor;->domain:I
++    iput v2, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
 +
-+    iget-object p3, p3, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
++    iget-object p2, p2, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
 +
-+    invoke-virtual {p3}, Ljava/lang/String;->hashCode()I
++    invoke-virtual {p2}, Ljava/lang/String;->hashCode()I
 +
-+    move-result p3
++    move-result p2
 +
-+    int-to-long v3, p3
++    int-to-long v2, p2
 +
-+    iput-wide v3, p1, Landroid/system/keystore2/KeyDescriptor;->nspace:J
++    iput-wide v2, p0, Landroid/system/keystore2/KeyDescriptor;->nspace:J
 +
-+    iput-object p1, v1, Landroid/system/keystore2/KeyMetadata;->key:Landroid/system/keystore2/KeyDescriptor;
++    iput-object p0, v0, Landroid/system/keystore2/KeyMetadata;->key:Landroid/system/keystore2/KeyDescriptor;
 +
-+    new-instance p1, Ljava/util/ArrayList;
++    new-instance p0, Ljava/util/ArrayList;
 +
-+    invoke-direct {p1}, Ljava/util/ArrayList;-><init>()V
++    invoke-direct {p0}, Ljava/util/ArrayList;-><init>()V
 +
-+    iget-object p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->purpose:Ljava/util/List;
++    iget-object p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->purpose:Ljava/util/List;
 +
-+    invoke-interface {p3}, Ljava/util/List;->iterator()Ljava/util/Iterator;
++    invoke-interface {p2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 +
-+    move-result-object p3
++    move-result-object p2
 +
 +    :goto_0
-+    invoke-interface {p3}, Ljava/util/Iterator;->hasNext()Z
++    invoke-interface {p2}, Ljava/util/Iterator;->hasNext()Z
++
++    move-result v2
++
++    if-eqz v2, :cond_1
++
++    invoke-interface {p2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
++
++    move-result-object v2
++
++    check-cast v2, Ljava/lang/Integer;
++
++    new-instance v3, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {v3}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance v4, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {v4}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object v4, v3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object v4, v3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const v5, 0x20000001
++
++    iput v5, v4, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object v4, v3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-virtual {v2}, Ljava/lang/Integer;->intValue()I
++
++    move-result v2
++
++    invoke-static {v2}, Landroid/hardware/security/keymint/KeyParameterValue;->keyPurpose(I)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object v2
++
++    iput-object v2, v4, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, v3, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    goto :goto_0
++
++    :cond_1
++    iget p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
++
++    const/4 v2, -0x1
++
++    if-eq p2, v2, :cond_2
++
++    new-instance p2, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance v3, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {v3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const v4, 0x10000002
++
++    iput v4, v3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget v4, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
++
++    invoke-static {v4}, Landroid/hardware/security/keymint/KeyParameterValue;->algorithm(I)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object v4
++
++    iput-object v4, v3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    :cond_2
++    iget p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->keySize:I
++
++    if-eq p2, v2, :cond_3
++
++    new-instance p2, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance v3, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {v3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const v4, 0x30000003
++
++    iput v4, v3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget v4, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->keySize:I
++
++    invoke-static {v4}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object v4
++
++    iput-object v4, v3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    :cond_3
++    iget-object p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->digest:Ljava/util/List;
++
++    invoke-interface {p2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
++
++    move-result-object p2
++
++    :goto_1
++    invoke-interface {p2}, Ljava/util/Iterator;->hasNext()Z
 +
 +    move-result v3
 +
-+    if-eqz v3, :cond_1
++    if-eqz v3, :cond_4
 +
-+    invoke-interface {p3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
++    invoke-interface {p2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 +
 +    move-result-object v3
 +
@@ -3850,7 +4495,7 @@ index 00000000..bf92c59d
 +
 +    iget-object v5, v4, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    const v6, 0x20000001
++    const v6, 0x20000005
 +
 +    iput v6, v5, Landroid/hardware/security/keymint/KeyParameter;->tag:I
 +
@@ -3860,536 +4505,226 @@ index 00000000..bf92c59d
 +
 +    move-result v3
 +
-+    invoke-static {v3}, Landroid/hardware/security/keymint/KeyParameterValue;->keyPurpose(I)Landroid/hardware/security/keymint/KeyParameterValue;
++    invoke-static {v3}, Landroid/hardware/security/keymint/KeyParameterValue;->digest(I)Landroid/hardware/security/keymint/KeyParameterValue;
 +
 +    move-result-object v3
 +
 +    iput-object v3, v5, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    iput p4, v4, Landroid/system/keystore2/Authorization;->securityLevel:I
++    iput p3, v4, Landroid/system/keystore2/Authorization;->securityLevel:I
 +
-+    invoke-interface {p1, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    goto :goto_0
-+
-+    :cond_1
-+    iget p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
-+
-+    const/4 v3, -0x1
-+
-+    if-eq p3, v3, :cond_2
-+
-+    new-instance p3, Landroid/system/keystore2/Authorization;
-+
-+    invoke-direct {p3}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance v4, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {v4}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const v5, 0x10000002
-+
-+    iput v5, v4, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget v5, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
-+
-+    invoke-static {v5}, Landroid/hardware/security/keymint/KeyParameterValue;->algorithm(I)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object v5
-+
-+    iput-object v5, v4, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p3, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    :cond_2
-+    iget p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->keySize:I
-+
-+    if-eq p3, v3, :cond_3
-+
-+    new-instance p3, Landroid/system/keystore2/Authorization;
-+
-+    invoke-direct {p3}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance v4, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {v4}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const v5, 0x30000003
-+
-+    iput v5, v4, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget v5, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->keySize:I
-+
-+    invoke-static {v5}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object v5
-+
-+    iput-object v5, v4, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p3, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    :cond_3
-+    iget-object p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->digest:Ljava/util/List;
-+
-+    invoke-interface {p3}, Ljava/util/List;->iterator()Ljava/util/Iterator;
-+
-+    move-result-object p3
-+
-+    :goto_1
-+    invoke-interface {p3}, Ljava/util/Iterator;->hasNext()Z
-+
-+    move-result v4
-+
-+    if-eqz v4, :cond_4
-+
-+    invoke-interface {p3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-+
-+    move-result-object v4
-+
-+    check-cast v4, Ljava/lang/Integer;
-+
-+    new-instance v5, Landroid/system/keystore2/Authorization;
-+
-+    invoke-direct {v5}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance v6, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {v6}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object v6, v5, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v6, v5, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const v7, 0x20000005
-+
-+    iput v7, v6, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object v6, v5, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-virtual {v4}, Ljava/lang/Integer;->intValue()I
-+
-+    move-result v4
-+
-+    invoke-static {v4}, Landroid/hardware/security/keymint/KeyParameterValue;->digest(I)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object v4
-+
-+    iput-object v4, v6, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, v5, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++    invoke-interface {p0, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 +
 +    goto :goto_1
 +
 +    :cond_4
-+    iget-object p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->mgfDigest:Ljava/util/List;
++    iget-object p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->mgfDigest:Ljava/util/List;
 +
-+    invoke-interface {p3}, Ljava/util/List;->iterator()Ljava/util/Iterator;
++    invoke-interface {p2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 +
-+    move-result-object p3
++    move-result-object p2
 +
 +    :goto_2
-+    invoke-interface {p3}, Ljava/util/Iterator;->hasNext()Z
++    invoke-interface {p2}, Ljava/util/Iterator;->hasNext()Z
 +
-+    move-result v4
++    move-result v3
 +
-+    if-eqz v4, :cond_5
++    if-eqz v3, :cond_5
 +
-+    invoke-interface {p3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
++    invoke-interface {p2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 +
-+    move-result-object v4
++    move-result-object v3
 +
-+    check-cast v4, Ljava/lang/Integer;
++    check-cast v3, Ljava/lang/Integer;
 +
-+    new-instance v5, Landroid/system/keystore2/Authorization;
++    new-instance v4, Landroid/system/keystore2/Authorization;
 +
-+    invoke-direct {v5}, Landroid/system/keystore2/Authorization;-><init>()V
++    invoke-direct {v4}, Landroid/system/keystore2/Authorization;-><init>()V
 +
-+    new-instance v6, Landroid/hardware/security/keymint/KeyParameter;
++    new-instance v5, Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-direct {v6}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++    invoke-direct {v5}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
 +
-+    iput-object v6, v5, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iput-object v5, v4, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    iget-object v6, v5, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v5, v4, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    const v7, 0x200000cb
++    const v6, 0x200000cb
 +
-+    iput v7, v6, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++    iput v6, v5, Landroid/hardware/security/keymint/KeyParameter;->tag:I
 +
-+    iget-object v6, v5, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v5, v4, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-virtual {v4}, Ljava/lang/Integer;->intValue()I
++    invoke-virtual {v3}, Ljava/lang/Integer;->intValue()I
 +
-+    move-result v4
++    move-result v3
 +
-+    invoke-static {v4}, Landroid/hardware/security/keymint/KeyParameterValue;->digest(I)Landroid/hardware/security/keymint/KeyParameterValue;
++    invoke-static {v3}, Landroid/hardware/security/keymint/KeyParameterValue;->digest(I)Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    move-result-object v4
++    move-result-object v3
 +
-+    iput-object v4, v6, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++    iput-object v3, v5, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    iput p4, v5, Landroid/system/keystore2/Authorization;->securityLevel:I
++    iput p3, v4, Landroid/system/keystore2/Authorization;->securityLevel:I
 +
-+    invoke-interface {p1, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++    invoke-interface {p0, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 +
 +    goto :goto_2
 +
 +    :cond_5
-+    iget-object p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->padding:Ljava/util/List;
++    iget-object p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->padding:Ljava/util/List;
 +
-+    invoke-interface {p3}, Ljava/util/List;->iterator()Ljava/util/Iterator;
++    invoke-interface {p2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 +
-+    move-result-object p3
++    move-result-object p2
 +
 +    :goto_3
-+    invoke-interface {p3}, Ljava/util/Iterator;->hasNext()Z
++    invoke-interface {p2}, Ljava/util/Iterator;->hasNext()Z
 +
-+    move-result v4
++    move-result v3
 +
-+    if-eqz v4, :cond_6
++    if-eqz v3, :cond_6
 +
-+    invoke-interface {p3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
++    invoke-interface {p2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 +
-+    move-result-object v4
++    move-result-object v3
 +
-+    check-cast v4, Ljava/lang/Integer;
++    check-cast v3, Ljava/lang/Integer;
 +
-+    new-instance v5, Landroid/system/keystore2/Authorization;
++    new-instance v4, Landroid/system/keystore2/Authorization;
 +
-+    invoke-direct {v5}, Landroid/system/keystore2/Authorization;-><init>()V
++    invoke-direct {v4}, Landroid/system/keystore2/Authorization;-><init>()V
 +
-+    new-instance v6, Landroid/hardware/security/keymint/KeyParameter;
++    new-instance v5, Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-direct {v6}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++    invoke-direct {v5}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
 +
-+    iput-object v6, v5, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iput-object v5, v4, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    iget-object v6, v5, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v5, v4, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    const v7, 0x20000006
++    const v6, 0x20000006
 +
-+    iput v7, v6, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++    iput v6, v5, Landroid/hardware/security/keymint/KeyParameter;->tag:I
 +
-+    iget-object v6, v5, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v5, v4, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-virtual {v4}, Ljava/lang/Integer;->intValue()I
++    invoke-virtual {v3}, Ljava/lang/Integer;->intValue()I
 +
-+    move-result v4
++    move-result v3
 +
-+    invoke-static {v4}, Landroid/hardware/security/keymint/KeyParameterValue;->paddingMode(I)Landroid/hardware/security/keymint/KeyParameterValue;
++    invoke-static {v3}, Landroid/hardware/security/keymint/KeyParameterValue;->paddingMode(I)Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    move-result-object v4
++    move-result-object v3
 +
-+    iput-object v4, v6, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++    iput-object v3, v5, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    iput p4, v5, Landroid/system/keystore2/Authorization;->securityLevel:I
++    iput p3, v4, Landroid/system/keystore2/Authorization;->securityLevel:I
 +
-+    invoke-interface {p1, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++    invoke-interface {p0, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 +
 +    goto :goto_3
 +
 +    :cond_6
-+    iget p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->ecCurve:I
++    iget p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->ecCurve:I
 +
-+    if-eq p3, v3, :cond_7
++    if-eq p2, v2, :cond_7
 +
-+    new-instance p3, Landroid/system/keystore2/Authorization;
++    new-instance p2, Landroid/system/keystore2/Authorization;
 +
-+    invoke-direct {p3}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance v4, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {v4}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const v5, 0x1000000a
-+
-+    iput v5, v4, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget v5, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->ecCurve:I
-+
-+    invoke-static {v5}, Landroid/hardware/security/keymint/KeyParameterValue;->ecCurve(I)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object v5
-+
-+    iput-object v5, v4, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p3, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    :cond_7
-+    iget-object p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->rsaPublicExponent:Ljava/math/BigInteger;
-+
-+    if-eqz p3, :cond_8
-+
-+    new-instance p3, Landroid/system/keystore2/Authorization;
-+
-+    invoke-direct {p3}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance v4, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {v4}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const v5, 0x500000c8
-+
-+    iput v5, v4, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v5, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->rsaPublicExponent:Ljava/math/BigInteger;
-+
-+    invoke-virtual {v5}, Ljava/math/BigInteger;->longValue()J
-+
-+    move-result-wide v5
-+
-+    invoke-static {v5, v6}, Landroid/hardware/security/keymint/KeyParameterValue;->longInteger(J)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object v5
-+
-+    iput-object v5, v4, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p3, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    :cond_8
-+    iget-object p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->activeDateTime:Ljava/util/Date;
-+
-+    if-eqz p3, :cond_9
-+
-+    new-instance p3, Landroid/system/keystore2/Authorization;
-+
-+    invoke-direct {p3}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance v4, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {v4}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const v5, 0x60000190
-+
-+    iput v5, v4, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v5, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->activeDateTime:Ljava/util/Date;
-+
-+    invoke-virtual {v5}, Ljava/util/Date;->getTime()J
-+
-+    move-result-wide v5
-+
-+    invoke-static {v5, v6}, Landroid/hardware/security/keymint/KeyParameterValue;->dateTime(J)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object v5
-+
-+    iput-object v5, v4, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p3, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    :cond_9
-+    iget-object p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->originationExpireDateTime:Ljava/util/Date;
-+
-+    if-eqz p3, :cond_a
-+
-+    new-instance p3, Landroid/system/keystore2/Authorization;
-+
-+    invoke-direct {p3}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance v4, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {v4}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const v5, 0x60000191
-+
-+    iput v5, v4, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v5, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->originationExpireDateTime:Ljava/util/Date;
-+
-+    invoke-virtual {v5}, Ljava/util/Date;->getTime()J
-+
-+    move-result-wide v5
-+
-+    invoke-static {v5, v6}, Landroid/hardware/security/keymint/KeyParameterValue;->dateTime(J)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object v5
-+
-+    iput-object v5, v4, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p3, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    :cond_a
-+    iget-object p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->usageExpireDateTime:Ljava/util/Date;
-+
-+    if-eqz p3, :cond_b
-+
-+    new-instance p3, Landroid/system/keystore2/Authorization;
-+
-+    invoke-direct {p3}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance v4, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {v4}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const v5, 0x60000192
-+
-+    iput v5, v4, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object v4, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object v5, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->usageExpireDateTime:Ljava/util/Date;
-+
-+    invoke-virtual {v5}, Ljava/util/Date;->getTime()J
-+
-+    move-result-wide v5
-+
-+    invoke-static {v5, v6}, Landroid/hardware/security/keymint/KeyParameterValue;->dateTime(J)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object v5
-+
-+    iput-object v5, v4, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p3, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    :cond_b
-+    invoke-static {}, Lio/mesalabs/unica/KeyboxUtils;->getAttestationVersion()I
-+
-+    move-result p3
-+
-+    const/16 v4, 0x64
-+
-+    if-lt p3, v4, :cond_c
-+
-+    iget p3, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->usageCountLimit:I
-+
-+    if-eq p3, v3, :cond_c
-+
-+    new-instance p3, Landroid/system/keystore2/Authorization;
-+
-+    invoke-direct {p3}, Landroid/system/keystore2/Authorization;-><init>()V
++    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
 +
 +    new-instance v3, Landroid/hardware/security/keymint/KeyParameter;
 +
 +    invoke-direct {v3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
 +
-+    iput-object v3, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iput-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    iget-object v3, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    const v4, 0x30000195
++    const v4, 0x1000000a
 +
 +    iput v4, v3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
 +
-+    iget-object v3, p3, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    iget p2, p2, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->usageCountLimit:I
++    iget v4, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->ecCurve:I
 +
-+    invoke-static {p2}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object p2
-+
-+    iput-object p2, v3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p3, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    :cond_c
-+    new-instance p2, Landroid/system/keystore2/Authorization;
-+
-+    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance p3, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {p3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const v3, 0x700001f7
-+
-+    iput v3, p3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const/4 v3, 0x1
-+
-+    invoke-static {v3}, Landroid/hardware/security/keymint/KeyParameterValue;->boolValue(Z)Landroid/hardware/security/keymint/KeyParameterValue;
++    invoke-static {v4}, Landroid/hardware/security/keymint/KeyParameterValue;->ecCurve(I)Landroid/hardware/security/keymint/KeyParameterValue;
 +
 +    move-result-object v4
 +
-+    iput-object v4, p3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++    iput-object v4, v3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    iput p4, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
++    iput p3, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
 +
-+    invoke-interface {p1, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++    invoke-interface {p0, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    :cond_7
++    iget-object p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->rsaPublicExponent:Ljava/math/BigInteger;
++
++    if-eqz p2, :cond_8
 +
 +    new-instance p2, Landroid/system/keystore2/Authorization;
 +
 +    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
 +
-+    new-instance p3, Landroid/hardware/security/keymint/KeyParameter;
++    new-instance v3, Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-direct {p3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++    invoke-direct {v3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
 +
-+    iput-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iput-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    const v4, 0x600002bd
++    const v4, 0x500000c8
 +
-+    iput v4, p3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++    iput v4, v3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
 +
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
++    iget-object v4, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->rsaPublicExponent:Ljava/math/BigInteger;
++
++    invoke-virtual {v4}, Ljava/math/BigInteger;->longValue()J
++
++    move-result-wide v4
++
++    invoke-static {v4, v5}, Landroid/hardware/security/keymint/KeyParameterValue;->longInteger(J)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object v4
++
++    iput-object v4, v3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    :cond_8
++    iget-object p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->activeDateTime:Ljava/util/Date;
++
++    if-eqz p2, :cond_9
++
++    new-instance p2, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance v3, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {v3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const v4, 0x60000190
++
++    iput v4, v3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object v4, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->activeDateTime:Ljava/util/Date;
++
++    invoke-virtual {v4}, Ljava/util/Date;->getTime()J
 +
 +    move-result-wide v4
 +
@@ -4397,258 +4732,438 @@ index 00000000..bf92c59d
 +
 +    move-result-object v4
 +
-+    iput-object v4, p3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++    iput-object v4, v3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    iput p4, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
++    iput p3, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
 +
-+    invoke-interface {p1, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++    invoke-interface {p0, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 +
-+    new-instance p2, Landroid/system/keystore2/Authorization;
++    :cond_9
++    iget-object p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->originationExpireDateTime:Ljava/util/Date;
 +
-+    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance p3, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {p3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const v4, 0x100002be
-+
-+    iput v4, p3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-static {p5}, Landroid/hardware/security/keymint/KeyParameterValue;->origin(I)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object p5
-+
-+    iput-object p5, p3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++    if-eqz p2, :cond_a
 +
 +    new-instance p2, Landroid/system/keystore2/Authorization;
 +
 +    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
 +
-+    new-instance p3, Landroid/hardware/security/keymint/KeyParameter;
++    new-instance v3, Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-direct {p3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++    invoke-direct {v3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
 +
-+    iput-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iput-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    const p5, 0x300002c1
++    const v4, 0x60000191
 +
-+    iput p5, p3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++    iput v4, v3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
 +
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-static {}, Lio/mesalabs/unica/KeyboxUtils;->getOSVersion()I
++    iget-object v4, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->originationExpireDateTime:Ljava/util/Date;
 +
-+    move-result p5
++    invoke-virtual {v4}, Ljava/util/Date;->getTime()J
 +
-+    invoke-static {p5}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
++    move-result-wide v4
 +
-+    move-result-object p5
++    invoke-static {v4, v5}, Landroid/hardware/security/keymint/KeyParameterValue;->dateTime(J)Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    iput-object p5, p3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++    move-result-object v4
 +
-+    iput p4, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
++    iput-object v4, v3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    invoke-interface {p1, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++    iput p3, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
 +
-+    new-instance p2, Landroid/system/keystore2/Authorization;
++    invoke-interface {p0, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 +
-+    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
++    :cond_a
++    iget-object p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->usageExpireDateTime:Ljava/util/Date;
 +
-+    new-instance p3, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {p3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const p5, 0x300002c2
-+
-+    iput p5, p3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-static {v2}, Lio/mesalabs/unica/KeyboxUtils;->getSecurityPatchLevel(Z)I
-+
-+    move-result p5
-+
-+    invoke-static {p5}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object p5
-+
-+    iput-object p5, p3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++    if-eqz p2, :cond_b
 +
 +    new-instance p2, Landroid/system/keystore2/Authorization;
 +
 +    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
 +
-+    new-instance p3, Landroid/hardware/security/keymint/KeyParameter;
++    new-instance v3, Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-direct {p3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++    invoke-direct {v3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
 +
-+    iput-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iput-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    const p5, 0x300002ce
++    const v4, 0x60000192
 +
-+    iput p5, p3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++    iput v4, v3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
 +
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-static {v3}, Lio/mesalabs/unica/KeyboxUtils;->getSecurityPatchLevel(Z)I
++    iget-object v4, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->usageExpireDateTime:Ljava/util/Date;
 +
-+    move-result p5
++    invoke-virtual {v4}, Ljava/util/Date;->getTime()J
 +
-+    invoke-static {p5}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
++    move-result-wide v4
 +
-+    move-result-object p5
++    invoke-static {v4, v5}, Landroid/hardware/security/keymint/KeyParameterValue;->dateTime(J)Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    iput-object p5, p3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++    move-result-object v4
 +
-+    iput p4, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
++    iput-object v4, v3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    invoke-interface {p1, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++    iput p3, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
 +
-+    new-instance p2, Landroid/system/keystore2/Authorization;
++    invoke-interface {p0, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 +
-+    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance p3, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {p3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const p5, 0x300002cf
-+
-+    iput p5, p3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-static {v3}, Lio/mesalabs/unica/KeyboxUtils;->getSecurityPatchLevel(Z)I
-+
-+    move-result p5
-+
-+    invoke-static {p5}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object p5
-+
-+    iput-object p5, p3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    new-instance p2, Landroid/system/keystore2/Authorization;
-+
-+    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
-+
-+    new-instance p3, Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-direct {p3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
-+
-+    iput-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    const p5, 0x300001f5
-+
-+    iput p5, p3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
-+
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
-+
-+    invoke-static {}, Landroid/os/Binder;->getCallingUid()I
-+
-+    move-result p5
-+
-+    const v3, 0x186a0
-+
-+    div-int/2addr p5, v3
-+
-+    invoke-static {p5}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object p5
-+
-+    iput-object p5, p3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
++    :cond_b
 +    invoke-static {}, Lio/mesalabs/unica/KeyboxUtils;->getAttestationVersion()I
 +
 +    move-result p2
 +
-+    const/16 p3, 0x190
++    const/16 v3, 0x64
 +
-+    if-lt p2, p3, :cond_d
++    if-lt p2, v3, :cond_c
++
++    iget p2, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->usageCountLimit:I
++
++    if-eq p2, v2, :cond_c
 +
 +    new-instance p2, Landroid/system/keystore2/Authorization;
 +
 +    invoke-direct {p2}, Landroid/system/keystore2/Authorization;-><init>()V
 +
-+    new-instance p3, Landroid/hardware/security/keymint/KeyParameter;
++    new-instance v2, Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-direct {p3}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++    invoke-direct {v2}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
 +
-+    iput-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iput-object v2, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v2, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    const p5, -0x6ffffd2c
++    const v3, 0x30000195
 +
-+    iput p5, p3, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++    iput v3, v2, Landroid/hardware/security/keymint/KeyParameter;->tag:I
 +
-+    iget-object p3, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++    iget-object v2, p2, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
 +
-+    invoke-static {}, Lio/mesalabs/unica/KeyboxUtils;->getModuleHash()[B
++    iget p1, p1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->usageCountLimit:I
 +
-+    move-result-object p5
-+
-+    invoke-static {p5}, Landroid/hardware/security/keymint/KeyParameterValue;->blob([B)Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    move-result-object p5
-+
-+    iput-object p5, p3, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
-+
-+    iput p4, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
-+
-+    invoke-interface {p1, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-+
-+    :cond_d
-+    new-array p2, v2, [Landroid/system/keystore2/Authorization;
-+
-+    invoke-interface {p1, p2}, Ljava/util/List;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
++    invoke-static {p1}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
 +
 +    move-result-object p1
 +
-+    check-cast p1, [Landroid/system/keystore2/Authorization;
++    iput-object p1, v2, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
 +
-+    iput-object p1, v1, Landroid/system/keystore2/KeyMetadata;->authorizations:[Landroid/system/keystore2/Authorization;
++    iput p3, p2, Landroid/system/keystore2/Authorization;->securityLevel:I
 +
-+    iput-object v1, v0, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++    invoke-interface {p0, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 +
-+    iput-object p0, v0, Landroid/system/keystore2/KeyEntryResponse;->iSecurityLevel:Landroid/system/keystore2/IKeystoreSecurityLevel;
++    :cond_c
++    new-instance p1, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p1}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance p2, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {p2}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const v2, 0x700001f7
++
++    iput v2, p2, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const/4 v2, 0x1
++
++    invoke-static {v2}, Landroid/hardware/security/keymint/KeyParameterValue;->boolValue(Z)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object v3
++
++    iput-object v3, p2, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p1, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    new-instance p1, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p1}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance p2, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {p2}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const v3, 0x600002bd
++
++    iput v3, p2, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
++
++    move-result-wide v3
++
++    invoke-static {v3, v4}, Landroid/hardware/security/keymint/KeyParameterValue;->dateTime(J)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object v3
++
++    iput-object v3, p2, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p1, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    new-instance p1, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p1}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance p2, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {p2}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const v3, 0x100002be
++
++    iput v3, p2, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-static {p4}, Landroid/hardware/security/keymint/KeyParameterValue;->origin(I)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object p4
++
++    iput-object p4, p2, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p1, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    new-instance p1, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p1}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance p2, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {p2}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const p4, 0x300002c1
++
++    iput p4, p2, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-static {}, Lio/mesalabs/unica/KeyboxUtils;->getOSVersion()I
++
++    move-result p4
++
++    invoke-static {p4}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object p4
++
++    iput-object p4, p2, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p1, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    new-instance p1, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p1}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance p2, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {p2}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const p4, 0x300002c2
++
++    iput p4, p2, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-static {v1}, Lio/mesalabs/unica/KeyboxUtils;->getSecurityPatchLevel(Z)I
++
++    move-result p4
++
++    invoke-static {p4}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object p4
++
++    iput-object p4, p2, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p1, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    new-instance p1, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p1}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance p2, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {p2}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const p4, 0x300002ce
++
++    iput p4, p2, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-static {v2}, Lio/mesalabs/unica/KeyboxUtils;->getSecurityPatchLevel(Z)I
++
++    move-result p4
++
++    invoke-static {p4}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object p4
++
++    iput-object p4, p2, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p1, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    new-instance p1, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p1}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance p2, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {p2}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const p4, 0x300002cf
++
++    iput p4, p2, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-static {v2}, Lio/mesalabs/unica/KeyboxUtils;->getSecurityPatchLevel(Z)I
++
++    move-result p4
++
++    invoke-static {p4}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object p4
++
++    iput-object p4, p2, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p1, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    new-instance p1, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p1}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance p2, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {p2}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const p4, 0x300001f5
++
++    iput p4, p2, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-static {}, Landroid/os/Binder;->getCallingUid()I
++
++    move-result p4
++
++    const v2, 0x186a0
++
++    div-int/2addr p4, v2
++
++    invoke-static {p4}, Landroid/hardware/security/keymint/KeyParameterValue;->integer(I)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object p4
++
++    iput-object p4, p2, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p1, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    invoke-static {}, Lio/mesalabs/unica/KeyboxUtils;->getAttestationVersion()I
++
++    move-result p1
++
++    const/16 p2, 0x190
++
++    if-lt p1, p2, :cond_d
++
++    new-instance p1, Landroid/system/keystore2/Authorization;
++
++    invoke-direct {p1}, Landroid/system/keystore2/Authorization;-><init>()V
++
++    new-instance p2, Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-direct {p2}, Landroid/hardware/security/keymint/KeyParameter;-><init>()V
++
++    iput-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    const p4, -0x6ffffd2c
++
++    iput p4, p2, Landroid/hardware/security/keymint/KeyParameter;->tag:I
++
++    iget-object p2, p1, Landroid/system/keystore2/Authorization;->keyParameter:Landroid/hardware/security/keymint/KeyParameter;
++
++    invoke-static {}, Lio/mesalabs/unica/KeyboxUtils;->getModuleHash()[B
++
++    move-result-object p4
++
++    invoke-static {p4}, Landroid/hardware/security/keymint/KeyParameterValue;->blob([B)Landroid/hardware/security/keymint/KeyParameterValue;
++
++    move-result-object p4
++
++    iput-object p4, p2, Landroid/hardware/security/keymint/KeyParameter;->value:Landroid/hardware/security/keymint/KeyParameterValue;
++
++    iput p3, p1, Landroid/system/keystore2/Authorization;->securityLevel:I
++
++    invoke-interface {p0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
++
++    :cond_d
++    new-array p1, v1, [Landroid/system/keystore2/Authorization;
++
++    invoke-interface {p0, p1}, Ljava/util/List;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
++
++    move-result-object p0
++
++    check-cast p0, [Landroid/system/keystore2/Authorization;
++
++    iput-object p0, v0, Landroid/system/keystore2/KeyMetadata;->authorizations:[Landroid/system/keystore2/Authorization;
 +    :try_end_0
 +    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 +
@@ -4659,7 +5174,7 @@ index 00000000..bf92c59d
 +
 +    const-string p1, "KeyboxImitationHooks"
 +
-+    const-string p2, "Failed to build key entry response"
++    const-string p2, "Failed to build key metadata"
 +
 +    invoke-static {p1, p2, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 +
@@ -4701,9 +5216,7 @@ index 00000000..bf92c59d
 +    :cond_1
 +    iget-object v3, v1, Landroid/util/Pair;->second:Ljava/lang/Object;
 +
-+    check-cast v3, Landroid/system/keystore2/KeyEntryResponse;
-+
-+    iget-object v3, v3, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++    check-cast v3, Landroid/system/keystore2/KeyMetadata;
 +
 +    iget-object v3, v3, Landroid/system/keystore2/KeyMetadata;->authorizations:[Landroid/system/keystore2/Authorization;
 +
@@ -4788,9 +5301,7 @@ index 00000000..bf92c59d
 +
 +    iget-object v9, v1, Landroid/util/Pair;->second:Ljava/lang/Object;
 +
-+    check-cast v9, Landroid/system/keystore2/KeyEntryResponse;
-+
-+    iget-object v9, v9, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++    check-cast v9, Landroid/system/keystore2/KeyMetadata;
 +
 +    iget-object v9, v9, Landroid/system/keystore2/KeyMetadata;->authorizations:[Landroid/system/keystore2/Authorization;
 +
@@ -5022,9 +5533,7 @@ index 00000000..bf92c59d
 +
 +    iget-object v0, v1, Landroid/util/Pair;->second:Ljava/lang/Object;
 +
-+    check-cast v0, Landroid/system/keystore2/KeyEntryResponse;
-+
-+    iget-object v0, v0, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++    check-cast v0, Landroid/system/keystore2/KeyMetadata;
 +
 +    iget-object v0, v0, Landroid/system/keystore2/KeyMetadata;->authorizations:[Landroid/system/keystore2/Authorization;
 +
@@ -5664,7 +6173,7 @@ index 00000000..bf92c59d
 +.end method
 +
 +.method public static blacklist onDeleteKey(Landroid/system/keystore2/KeyDescriptor;)Z
-+    .locals 2
++    .locals 6
 +
 +    invoke-static {}, Lio/mesalabs/unica/KeyProviderManager;->isKeyboxAvailable()Z
 +
@@ -5677,13 +6186,48 @@ index 00000000..bf92c59d
 +    return v1
 +
 +    :cond_0
-+    invoke-static {p0}, Lio/mesalabs/unica/KeyboxUtils;->fetchKeyData(Landroid/system/keystore2/KeyDescriptor;)Landroid/util/Pair;
++    iget v0, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
 +
-+    move-result-object v0
++    const/4 v2, 0x4
 +
 +    if-eqz v0, :cond_1
 +
-+    invoke-static {p0}, Lio/mesalabs/unica/KeyboxUtils;->deleteKeyData(Landroid/system/keystore2/KeyDescriptor;)V
++    iget v0, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
++
++    if-eq v0, v2, :cond_1
++
++    return v1
++
++    :cond_1
++    invoke-static {}, Lio/mesalabs/unica/KeyboxDbHelper;->getInstance()Lio/mesalabs/unica/KeyboxDbHelper;
++
++    move-result-object v0
++
++    if-nez v0, :cond_2
++
++    return v1
++
++    :cond_2
++    iget-wide v3, p0, Landroid/system/keystore2/KeyDescriptor;->nspace:J
++
++    iget v5, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
++
++    if-eq v5, v2, :cond_3
++
++    iget-object v2, p0, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
++
++    invoke-virtual {v2}, Ljava/lang/String;->hashCode()I
++
++    move-result v2
++
++    int-to-long v3, v2
++
++    :cond_3
++    invoke-virtual {v0, v3, v4}, Lio/mesalabs/unica/KeyboxDbHelper;->deleteKeyData(J)Z
++
++    move-result v0
++
++    if-eqz v0, :cond_4
 +
 +    new-instance v0, Ljava/lang/StringBuilder;
 +
@@ -5721,12 +6265,12 @@ index 00000000..bf92c59d
 +
 +    return p0
 +
-+    :cond_1
++    :cond_4
 +    return v1
 +.end method
 +
-+.method public static blacklist onGenerateKey(Landroid/system/keystore2/IKeystoreSecurityLevel;Landroid/system/keystore2/KeyDescriptor;Landroid/system/keystore2/KeyDescriptor;[Landroid/hardware/security/keymint/KeyParameter;)Landroid/system/keystore2/KeyMetadata;
-+    .locals 9
++.method public static blacklist onGenerateKey(Landroid/system/keystore2/KeyDescriptor;Landroid/system/keystore2/KeyDescriptor;[Landroid/hardware/security/keymint/KeyParameter;)Landroid/system/keystore2/KeyMetadata;
++    .locals 5
 +
 +    const-string v0, "Generated key with alias \""
 +
@@ -5750,144 +6294,143 @@ index 00000000..bf92c59d
 +    return-object v2
 +
 +    :cond_1
-+    iget v1, p1, Landroid/system/keystore2/KeyDescriptor;->domain:I
++    iget v1, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
 +
 +    if-eqz v1, :cond_2
 +
 +    return-object v2
 +
 +    :cond_2
-+    new-instance v5, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;
++    new-instance v1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;
 +
-+    invoke-direct {v5, p3}, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;-><init>([Landroid/hardware/security/keymint/KeyParameter;)V
++    invoke-direct {v1, p2}, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;-><init>([Landroid/hardware/security/keymint/KeyParameter;)V
 +
-+    iget p3, v5, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
++    iget p2, v1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
 +
-+    const/4 v1, 0x3
++    const/4 v3, 0x3
 +
-+    const/4 v3, 0x1
++    const/4 v4, 0x1
 +
-+    if-eq p3, v1, :cond_3
++    if-eq p2, v3, :cond_3
 +
-+    iget p3, v5, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
++    iget p2, v1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
 +
-+    if-eq p3, v3, :cond_3
++    if-eq p2, v4, :cond_3
 +
 +    return-object v2
 +
 +    :cond_3
-+    iget-object p3, v5, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->purpose:Ljava/util/List;
++    iget-object p2, v1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->purpose:Ljava/util/List;
 +
-+    const/4 v1, 0x7
++    const/4 v3, 0x7
 +
-+    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
++    invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 +
-+    move-result-object v1
++    move-result-object v3
 +
-+    invoke-interface {p3, v1}, Ljava/util/List;->contains(Ljava/lang/Object;)Z
++    invoke-interface {p2, v3}, Ljava/util/List;->contains(Ljava/lang/Object;)Z
 +
-+    move-result p3
++    move-result p2
 +
-+    if-eqz p3, :cond_4
++    if-eqz p2, :cond_4
 +
-+    iget-object p3, v5, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->purpose:Ljava/util/List;
++    iget-object p2, v1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->purpose:Ljava/util/List;
 +
-+    invoke-interface {p3}, Ljava/util/List;->size()I
++    invoke-interface {p2}, Ljava/util/List;->size()I
 +
-+    move-result p3
++    move-result p2
 +
-+    if-le p3, v3, :cond_4
++    if-le p2, v4, :cond_4
 +
 +    return-object v2
 +
 +    :cond_4
 +    :try_start_0
-+    invoke-static {v5}, Lio/mesalabs/unica/KeyboxUtils;->generateKeyPair(Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;)Ljava/security/KeyPair;
++    invoke-static {v1}, Lio/mesalabs/unica/KeyboxUtils;->generateKeyPair(Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;)Ljava/security/KeyPair;
 +
-+    move-result-object p3
++    move-result-object p2
 +
-+    sget v1, Lio/mesalabs/unica/KeyboxImitationHooks;->sSecurityLevel:I
++    sget v3, Lio/mesalabs/unica/KeyboxImitationHooks;->sSecurityLevelType:I
 +
-+    invoke-static {p3, p2, v5, v1}, Lio/mesalabs/unica/KeyboxChainGenerator;->generateCertChain(Ljava/security/KeyPair;Landroid/system/keystore2/KeyDescriptor;Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;I)Ljava/util/List;
++    invoke-static {p2, p1, v1, v3}, Lio/mesalabs/unica/KeyboxChainGenerator;->generateCertChain(Ljava/security/KeyPair;Landroid/system/keystore2/KeyDescriptor;Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;I)Ljava/util/List;
 +
-+    move-result-object v4
++    move-result-object p1
 +
-+    if-eqz v4, :cond_7
++    if-eqz p1, :cond_8
 +
-+    invoke-interface {v4}, Ljava/util/List;->isEmpty()Z
++    invoke-interface {p1}, Ljava/util/List;->isEmpty()Z
 +
-+    move-result p2
++    move-result v3
 +
-+    if-eqz p2, :cond_5
++    if-eqz v3, :cond_5
 +
 +    goto :goto_0
 +
 +    :cond_5
-+    sget v7, Lio/mesalabs/unica/KeyboxImitationHooks;->sSecurityLevel:I
++    sget v3, Lio/mesalabs/unica/KeyboxImitationHooks;->sSecurityLevelType:I
 +
-+    const/4 v8, 0x0
++    const/4 v4, 0x0
 +
-+    move-object v3, p0
++    invoke-static {p1, v1, p0, v3, v4}, Lio/mesalabs/unica/KeyboxImitationHooks;->buildMetadata(Ljava/util/List;Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;Landroid/system/keystore2/KeyDescriptor;II)Landroid/system/keystore2/KeyMetadata;
 +
-+    move-object v6, p1
++    move-result-object p1
 +
-+    invoke-static/range {v3 .. v8}, Lio/mesalabs/unica/KeyboxImitationHooks;->buildResponse(Landroid/system/keystore2/IKeystoreSecurityLevel;Ljava/util/List;Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;Landroid/system/keystore2/KeyDescriptor;II)Landroid/system/keystore2/KeyEntryResponse;
-+
-+    move-result-object p0
-+
-+    if-nez p0, :cond_6
++    if-nez p1, :cond_6
 +
 +    return-object v2
 +
 +    :cond_6
-+    iget-object p1, v6, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
++    invoke-static {}, Lio/mesalabs/unica/KeyboxDbHelper;->getInstance()Lio/mesalabs/unica/KeyboxDbHelper;
 +
-+    invoke-static {p1, p3, p0}, Lio/mesalabs/unica/KeyboxUtils;->storeKeyData(Ljava/lang/String;Ljava/security/KeyPair;Landroid/system/keystore2/KeyEntryResponse;)V
++    move-result-object v1
 +
-+    new-instance p1, Ljava/lang/StringBuilder;
++    if-eqz v1, :cond_7
 +
-+    invoke-direct {p1, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
++    iget-object v3, p0, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
 +
-+    iget-object p2, v6, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
++    invoke-virtual {v1, v3, p2, p1}, Lio/mesalabs/unica/KeyboxDbHelper;->storeKeyData(Ljava/lang/String;Ljava/security/KeyPair;Landroid/system/keystore2/KeyMetadata;)V
 +
-+    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++    :cond_7
++    new-instance p2, Ljava/lang/StringBuilder;
 +
-+    move-result-object p1
++    invoke-direct {p2, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
++
++    iget-object p0, p0, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
++
++    invoke-virtual {p2, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
 +
 +    const-string p2, "\" for uid "
 +
-+    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++    invoke-virtual {p0, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 +
-+    move-result-object p1
++    move-result-object p0
 +
 +    invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 +
 +    move-result p2
 +
-+    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
++    invoke-virtual {p0, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 +
-+    move-result-object p1
++    move-result-object p0
 +
-+    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
++    invoke-virtual {p0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 +
-+    move-result-object p1
++    move-result-object p0
 +
-+    invoke-static {p1}, Lio/mesalabs/unica/KeyboxImitationHooks;->dlog(Ljava/lang/String;)V
-+
-+    iget-object p0, p0, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++    invoke-static {p0}, Lio/mesalabs/unica/KeyboxImitationHooks;->dlog(Ljava/lang/String;)V
 +    :try_end_0
 +    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 +
-+    return-object p0
++    return-object p1
 +
-+    :cond_7
++    :cond_8
 +    :goto_0
 +    return-object v2
 +
 +    :catch_0
-+    move-exception v0
-+
-+    move-object p0, v0
++    move-exception p0
 +
 +    const-string p1, "KeyboxImitationHooks"
 +
@@ -5922,29 +6465,43 @@ index 00000000..bf92c59d
 +
 +    if-eqz v2, :cond_1
 +
-+    new-instance v1, Ljava/lang/StringBuilder;
++    new-instance v1, Landroid/system/keystore2/KeyEntryResponse;
++
++    invoke-direct {v1}, Landroid/system/keystore2/KeyEntryResponse;-><init>()V
++
++    iget-object v0, v0, Landroid/util/Pair;->second:Ljava/lang/Object;
++
++    check-cast v0, Landroid/system/keystore2/KeyMetadata;
++
++    iput-object v0, v1, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++
++    sget-object v0, Lio/mesalabs/unica/KeyboxImitationHooks;->sSecurityLevel:Landroid/system/keystore2/IKeystoreSecurityLevel;
++
++    iput-object v0, v1, Landroid/system/keystore2/KeyEntryResponse;->iSecurityLevel:Landroid/system/keystore2/IKeystoreSecurityLevel;
++
++    new-instance v0, Ljava/lang/StringBuilder;
 +
 +    const-string v2, "Retrieved key with alias \""
 +
-+    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
++    invoke-direct {v0, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 +
 +    iget-object p0, p0, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
 +
-+    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 +
 +    move-result-object p0
 +
-+    const-string v1, "\" for uid "
++    const-string v0, "\" for uid "
 +
-+    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++    invoke-virtual {p0, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 +
 +    move-result-object p0
 +
 +    invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 +
-+    move-result v1
++    move-result v0
 +
-+    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
++    invoke-virtual {p0, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 +
 +    move-result-object p0
 +
@@ -5953,12 +6510,6 @@ index 00000000..bf92c59d
 +    move-result-object p0
 +
 +    invoke-static {p0}, Lio/mesalabs/unica/KeyboxImitationHooks;->dlog(Ljava/lang/String;)V
-+
-+    iget-object p0, v0, Landroid/util/Pair;->second:Ljava/lang/Object;
-+
-+    check-cast p0, Landroid/system/keystore2/KeyEntryResponse;
-+
-+    return-object p0
 +
 +    :cond_1
 +    return-object v1
@@ -5983,15 +6534,24 @@ index 00000000..bf92c59d
 +    return-object v1
 +
 +    :cond_1
-+    invoke-static {v1}, Lio/mesalabs/unica/KeyboxUtils;->fetchKeyEntries(Ljava/lang/String;)[Landroid/system/keystore2/KeyDescriptor;
++    invoke-static {}, Lio/mesalabs/unica/KeyboxDbHelper;->getInstance()Lio/mesalabs/unica/KeyboxDbHelper;
 +
 +    move-result-object p0
 +
-+    if-eqz p0, :cond_2
++    if-nez p0, :cond_2
++
++    return-object v1
++
++    :cond_2
++    invoke-virtual {p0, v1}, Lio/mesalabs/unica/KeyboxDbHelper;->fetchKeyEntries(Ljava/lang/String;)[Landroid/system/keystore2/KeyDescriptor;
++
++    move-result-object p0
++
++    if-eqz p0, :cond_3
 +
 +    array-length v0, p0
 +
-+    if-lez v0, :cond_2
++    if-lez v0, :cond_3
 +
 +    new-instance v0, Ljava/lang/StringBuilder;
 +
@@ -6021,12 +6581,12 @@ index 00000000..bf92c59d
 +
 +    return-object p0
 +
-+    :cond_2
++    :cond_3
 +    return-object v1
 +.end method
 +
-+.method public static blacklist onImportKey(Landroid/system/keystore2/IKeystoreSecurityLevel;Landroid/system/keystore2/KeyDescriptor;[Landroid/hardware/security/keymint/KeyParameter;[B)Landroid/system/keystore2/KeyMetadata;
-+    .locals 9
++.method public static blacklist onImportKey(Landroid/system/keystore2/KeyDescriptor;[Landroid/hardware/security/keymint/KeyParameter;[B)Landroid/system/keystore2/KeyMetadata;
++    .locals 5
 +
 +    const-string v0, "Imported key with alias \""
 +
@@ -6041,125 +6601,122 @@ index 00000000..bf92c59d
 +    return-object v2
 +
 +    :cond_0
-+    iget v1, p1, Landroid/system/keystore2/KeyDescriptor;->domain:I
++    iget v1, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
 +
 +    if-eqz v1, :cond_1
 +
 +    return-object v2
 +
 +    :cond_1
-+    new-instance v5, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;
++    new-instance v1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;
 +
-+    invoke-direct {v5, p2}, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;-><init>([Landroid/hardware/security/keymint/KeyParameter;)V
++    invoke-direct {v1, p1}, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;-><init>([Landroid/hardware/security/keymint/KeyParameter;)V
 +
-+    iget p2, v5, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
++    iget p1, v1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
 +
-+    const/4 v1, 0x3
++    const/4 v3, 0x3
 +
-+    const/4 v3, 0x1
++    const/4 v4, 0x1
 +
-+    if-eq p2, v1, :cond_2
++    if-eq p1, v3, :cond_2
 +
-+    iget p2, v5, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
++    iget p1, v1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
 +
-+    if-eq p2, v3, :cond_2
++    if-eq p1, v4, :cond_2
 +
 +    return-object v2
 +
 +    :cond_2
-+    iget-object p2, v5, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->purpose:Ljava/util/List;
++    iget-object p1, v1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->purpose:Ljava/util/List;
 +
-+    const/4 v1, 0x7
++    const/4 v3, 0x7
 +
-+    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
++    invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 +
-+    move-result-object v1
++    move-result-object v3
 +
-+    invoke-interface {p2, v1}, Ljava/util/List;->contains(Ljava/lang/Object;)Z
++    invoke-interface {p1, v3}, Ljava/util/List;->contains(Ljava/lang/Object;)Z
 +
-+    move-result p2
++    move-result p1
 +
-+    if-eqz p2, :cond_5
++    if-eqz p1, :cond_6
 +
-+    iget-object p2, v5, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->purpose:Ljava/util/List;
++    iget-object p1, v1, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->purpose:Ljava/util/List;
 +
-+    invoke-interface {p2}, Ljava/util/List;->size()I
++    invoke-interface {p1}, Ljava/util/List;->size()I
 +
-+    move-result p2
++    move-result p1
 +
-+    if-le p2, v3, :cond_3
++    if-le p1, v4, :cond_3
 +
 +    goto :goto_0
 +
 +    :cond_3
 +    :try_start_0
-+    invoke-static {p3}, Lio/mesalabs/unica/KeyboxUtils;->generateKeyPairFromKeyData([B)Ljava/security/KeyPair;
++    invoke-static {p2}, Lio/mesalabs/unica/KeyboxUtils;->generateKeyPairFromKeyData([B)Ljava/security/KeyPair;
++
++    move-result-object p1
++
++    sget p2, Lio/mesalabs/unica/KeyboxImitationHooks;->sSecurityLevelType:I
++
++    const/4 v3, 0x2
++
++    invoke-static {v2, v1, p0, p2, v3}, Lio/mesalabs/unica/KeyboxImitationHooks;->buildMetadata(Ljava/util/List;Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;Landroid/system/keystore2/KeyDescriptor;II)Landroid/system/keystore2/KeyMetadata;
 +
 +    move-result-object p2
 +
-+    sget v7, Lio/mesalabs/unica/KeyboxImitationHooks;->sSecurityLevel:I
-+
-+    const/4 v8, 0x2
-+
-+    const/4 v4, 0x0
-+
-+    move-object v3, p0
-+
-+    move-object v6, p1
-+
-+    invoke-static/range {v3 .. v8}, Lio/mesalabs/unica/KeyboxImitationHooks;->buildResponse(Landroid/system/keystore2/IKeystoreSecurityLevel;Ljava/util/List;Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;Landroid/system/keystore2/KeyDescriptor;II)Landroid/system/keystore2/KeyEntryResponse;
-+
-+    move-result-object p0
-+
-+    if-nez p0, :cond_4
++    if-nez p2, :cond_4
 +
 +    return-object v2
 +
 +    :cond_4
-+    iget-object p1, v6, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
++    invoke-static {}, Lio/mesalabs/unica/KeyboxDbHelper;->getInstance()Lio/mesalabs/unica/KeyboxDbHelper;
 +
-+    invoke-static {p1, p2, p0}, Lio/mesalabs/unica/KeyboxUtils;->storeKeyData(Ljava/lang/String;Ljava/security/KeyPair;Landroid/system/keystore2/KeyEntryResponse;)V
++    move-result-object v1
 +
++    if-eqz v1, :cond_5
++
++    iget-object v3, p0, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
++
++    invoke-virtual {v1, v3, p1, p2}, Lio/mesalabs/unica/KeyboxDbHelper;->storeKeyData(Ljava/lang/String;Ljava/security/KeyPair;Landroid/system/keystore2/KeyMetadata;)V
++
++    :cond_5
 +    new-instance p1, Ljava/lang/StringBuilder;
 +
 +    invoke-direct {p1, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 +
-+    iget-object p2, v6, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
++    iget-object p0, p0, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
 +
-+    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++    invoke-virtual {p1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 +
-+    move-result-object p1
++    move-result-object p0
 +
-+    const-string p2, "\" for uid "
++    const-string p1, "\" for uid "
 +
-+    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++    invoke-virtual {p0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 +
-+    move-result-object p1
++    move-result-object p0
 +
 +    invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 +
-+    move-result p2
++    move-result p1
 +
-+    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
++    invoke-virtual {p0, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 +
-+    move-result-object p1
++    move-result-object p0
 +
-+    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
++    invoke-virtual {p0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 +
-+    move-result-object p1
++    move-result-object p0
 +
-+    invoke-static {p1}, Lio/mesalabs/unica/KeyboxImitationHooks;->dlog(Ljava/lang/String;)V
-+
-+    iget-object p0, p0, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++    invoke-static {p0}, Lio/mesalabs/unica/KeyboxImitationHooks;->dlog(Ljava/lang/String;)V
 +    :try_end_0
 +    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 +
-+    return-object p0
++    return-object p2
 +
 +    :catch_0
-+    move-exception v0
-+
-+    move-object p0, v0
++    move-exception p0
 +
 +    const-string p1, "KeyboxImitationHooks"
 +
@@ -6167,7 +6724,7 @@ index 00000000..bf92c59d
 +
 +    invoke-static {p1, p2, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 +
-+    :cond_5
++    :cond_6
 +    :goto_0
 +    return-object v2
 +.end method
@@ -6191,15 +6748,24 @@ index 00000000..bf92c59d
 +    return-object v1
 +
 +    :cond_1
-+    invoke-static {v1}, Lio/mesalabs/unica/KeyboxUtils;->fetchKeyEntries(Ljava/lang/String;)[Landroid/system/keystore2/KeyDescriptor;
++    invoke-static {}, Lio/mesalabs/unica/KeyboxDbHelper;->getInstance()Lio/mesalabs/unica/KeyboxDbHelper;
 +
 +    move-result-object p0
 +
-+    if-eqz p0, :cond_2
++    if-nez p0, :cond_2
++
++    return-object v1
++
++    :cond_2
++    invoke-virtual {p0, v1}, Lio/mesalabs/unica/KeyboxDbHelper;->fetchKeyEntries(Ljava/lang/String;)[Landroid/system/keystore2/KeyDescriptor;
++
++    move-result-object p0
++
++    if-eqz p0, :cond_3
 +
 +    array-length v0, p0
 +
-+    if-lez v0, :cond_2
++    if-lez v0, :cond_3
 +
 +    new-instance v0, Ljava/lang/StringBuilder;
 +
@@ -6223,7 +6789,7 @@ index 00000000..bf92c59d
 +
 +    return-object p0
 +
-+    :cond_2
++    :cond_3
 +    return-object v1
 +.end method
 +
@@ -6246,15 +6812,24 @@ index 00000000..bf92c59d
 +    return-object v1
 +
 +    :cond_1
-+    invoke-static {p1}, Lio/mesalabs/unica/KeyboxUtils;->fetchKeyEntries(Ljava/lang/String;)[Landroid/system/keystore2/KeyDescriptor;
++    invoke-static {}, Lio/mesalabs/unica/KeyboxDbHelper;->getInstance()Lio/mesalabs/unica/KeyboxDbHelper;
 +
 +    move-result-object p0
 +
-+    if-eqz p0, :cond_2
++    if-nez p0, :cond_2
++
++    return-object v1
++
++    :cond_2
++    invoke-virtual {p0, p1}, Lio/mesalabs/unica/KeyboxDbHelper;->fetchKeyEntries(Ljava/lang/String;)[Landroid/system/keystore2/KeyDescriptor;
++
++    move-result-object p0
++
++    if-eqz p0, :cond_3
 +
 +    array-length v0, p0
 +
-+    if-lez v0, :cond_2
++    if-lez v0, :cond_3
 +
 +    new-instance v0, Ljava/lang/StringBuilder;
 +
@@ -6288,12 +6863,12 @@ index 00000000..bf92c59d
 +
 +    return-object p0
 +
-+    :cond_2
++    :cond_3
 +    return-object v1
 +.end method
 +
 +.method public static blacklist onUpdateSubcomponent(Landroid/system/keystore2/KeyDescriptor;[B[B)Z
-+    .locals 4
++    .locals 5
 +
 +    invoke-static {}, Lio/mesalabs/unica/KeyProviderManager;->isKeyboxAvailable()Z
 +
@@ -6314,29 +6889,27 @@ index 00000000..bf92c59d
 +
 +    iget-object v2, v0, Landroid/util/Pair;->second:Ljava/lang/Object;
 +
-+    check-cast v2, Landroid/system/keystore2/KeyEntryResponse;
++    check-cast v2, Landroid/system/keystore2/KeyMetadata;
 +
 +    if-eqz v2, :cond_1
 +
-+    iget-object v3, v2, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++    iput-object p1, v2, Landroid/system/keystore2/KeyMetadata;->certificate:[B
 +
-+    if-eqz v3, :cond_1
++    iput-object p2, v2, Landroid/system/keystore2/KeyMetadata;->certificateChain:[B
 +
-+    iget-object v1, v2, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++    invoke-static {}, Lio/mesalabs/unica/KeyboxDbHelper;->getInstance()Lio/mesalabs/unica/KeyboxDbHelper;
 +
-+    iput-object p1, v1, Landroid/system/keystore2/KeyMetadata;->certificate:[B
++    move-result-object p1
 +
-+    iget-object p1, v2, Landroid/system/keystore2/KeyEntryResponse;->metadata:Landroid/system/keystore2/KeyMetadata;
++    if-eqz p1, :cond_1
 +
-+    iput-object p2, p1, Landroid/system/keystore2/KeyMetadata;->certificateChain:[B
++    iget-wide v3, p0, Landroid/system/keystore2/KeyDescriptor;->nspace:J
 +
-+    iget-wide p1, p0, Landroid/system/keystore2/KeyDescriptor;->nspace:J
++    iget-object p2, v0, Landroid/util/Pair;->first:Ljava/lang/Object;
 +
-+    iget-object v0, v0, Landroid/util/Pair;->first:Ljava/lang/Object;
++    check-cast p2, Ljava/security/KeyPair;
 +
-+    check-cast v0, Ljava/security/KeyPair;
-+
-+    invoke-static {p1, p2, v0, v2}, Lio/mesalabs/unica/KeyboxUtils;->storeKeyData(JLjava/security/KeyPair;Landroid/system/keystore2/KeyEntryResponse;)V
++    invoke-virtual {p1, v3, v4, p2, v2}, Lio/mesalabs/unica/KeyboxDbHelper;->updateKeyData(JLjava/security/KeyPair;Landroid/system/keystore2/KeyMetadata;)V
 +
 +    new-instance p1, Ljava/lang/StringBuilder;
 +
@@ -6378,19 +6951,21 @@ index 00000000..bf92c59d
 +    return v1
 +.end method
 +
-+.method public static blacklist setSecurityLevel(I)V
++.method public static setSecurityLevel(Landroid/system/keystore2/IKeystoreSecurityLevel;I)V
 +    .locals 0
 +
-+    sput p0, Lio/mesalabs/unica/KeyboxImitationHooks;->sSecurityLevel:I
++    sput-object p0, Lio/mesalabs/unica/KeyboxImitationHooks;->sSecurityLevel:Landroid/system/keystore2/IKeystoreSecurityLevel;
++
++    sput p1, Lio/mesalabs/unica/KeyboxImitationHooks;->sSecurityLevelType:I
 +
 +    return-void
 +.end method
 diff --git a/smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$DecryptOperation.smali b/smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$DecryptOperation.smali
 new file mode 100644
-index 00000000..1210b8d8
+index 00000000..c4d07a46
 --- /dev/null
 +++ b/smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$DecryptOperation.smali
-@@ -0,0 +1,268 @@
+@@ -0,0 +1,249 @@
 +.class final Lio/mesalabs/unica/KeyboxOperationUtils$DecryptOperation;
 +.super Landroid/system/keystore2/IKeystoreOperation$Stub;
 +.source "KeyboxOperationUtils.java"
@@ -6405,10 +6980,6 @@ index 00000000..1210b8d8
 +    accessFlags = 0x1a
 +    name = "DecryptOperation"
 +.end annotation
-+
-+
-+# static fields
-+.field private static blacklist replacedProvider:Z = false
 +
 +
 +# instance fields
@@ -6426,26 +6997,11 @@ index 00000000..1210b8d8
 +
 +    invoke-direct {p0}, Landroid/system/keystore2/IKeystoreOperation$Stub;-><init>()V
 +
-+    sget-boolean v0, Lio/mesalabs/unica/KeyboxOperationUtils$DecryptOperation;->replacedProvider:Z
-+
-+    const-string v1, "BC"
-+
-+    if-nez v0, :cond_0
-+
-+    invoke-static {v1}, Ljava/security/Security;->removeProvider(Ljava/lang/String;)V
-+
 +    new-instance v0, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;
 +
 +    invoke-direct {v0}, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;-><init>()V
 +
-+    invoke-static {v0}, Ljava/security/Security;->addProvider(Ljava/security/Provider;)I
-+
-+    const/4 v0, 0x1
-+
-+    sput-boolean v0, Lio/mesalabs/unica/KeyboxOperationUtils$DecryptOperation;->replacedProvider:Z
-+
-+    :cond_0
-+    invoke-static {p2, v1}, Ljavax/crypto/Cipher;->getInstance(Ljava/lang/String;Ljava/lang/String;)Ljavax/crypto/Cipher;
++    invoke-static {p2, v0}, Ljavax/crypto/Cipher;->getInstance(Ljava/lang/String;Ljava/security/Provider;)Ljavax/crypto/Cipher;
 +
 +    move-result-object p2
 +
@@ -6453,13 +7009,13 @@ index 00000000..1210b8d8
 +
 +    const/4 p0, 0x2
 +
-+    if-nez p4, :cond_1
++    if-nez p4, :cond_0
 +
 +    invoke-virtual {p2, p0, p1}, Ljavax/crypto/Cipher;->init(ILjava/security/Key;)V
 +
 +    return-void
 +
-+    :cond_1
++    :cond_0
 +    invoke-virtual {p3}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 +
 +    invoke-static {p3}, Lio/mesalabs/unica/KeyboxUtils;->getDecryptDigest(Ljava/lang/Integer;)Ljava/lang/String;
@@ -6474,29 +7030,29 @@ index 00000000..1210b8d8
 +
 +    const-string v1, "MGF1"
 +
-+    if-eq p3, p0, :cond_6
++    if-eq p3, p0, :cond_5
 +
 +    const/4 v2, 0x3
 +
-+    if-eq p3, v2, :cond_5
++    if-eq p3, v2, :cond_4
 +
 +    const/4 v2, 0x4
 +
-+    if-eq p3, v2, :cond_4
++    if-eq p3, v2, :cond_3
 +
 +    const/4 v2, 0x5
 +
-+    if-eq p3, v2, :cond_3
++    if-eq p3, v2, :cond_2
 +
 +    const/4 v2, 0x6
 +
-+    if-eq p3, v2, :cond_2
++    if-eq p3, v2, :cond_1
 +
 +    const/4 p3, 0x0
 +
 +    goto :goto_0
 +
-+    :cond_2
++    :cond_1
 +    new-instance p3, Ljavax/crypto/spec/OAEPParameterSpec;
 +
 +    sget-object v2, Ljava/security/spec/MGF1ParameterSpec;->SHA512:Ljava/security/spec/MGF1ParameterSpec;
@@ -6507,7 +7063,7 @@ index 00000000..1210b8d8
 +
 +    goto :goto_0
 +
-+    :cond_3
++    :cond_2
 +    new-instance p3, Ljavax/crypto/spec/OAEPParameterSpec;
 +
 +    sget-object v2, Ljava/security/spec/MGF1ParameterSpec;->SHA384:Ljava/security/spec/MGF1ParameterSpec;
@@ -6518,7 +7074,7 @@ index 00000000..1210b8d8
 +
 +    goto :goto_0
 +
-+    :cond_4
++    :cond_3
 +    new-instance p3, Ljavax/crypto/spec/OAEPParameterSpec;
 +
 +    sget-object v2, Ljava/security/spec/MGF1ParameterSpec;->SHA256:Ljava/security/spec/MGF1ParameterSpec;
@@ -6529,7 +7085,7 @@ index 00000000..1210b8d8
 +
 +    goto :goto_0
 +
-+    :cond_5
++    :cond_4
 +    new-instance p3, Ljavax/crypto/spec/OAEPParameterSpec;
 +
 +    sget-object v2, Ljava/security/spec/MGF1ParameterSpec;->SHA224:Ljava/security/spec/MGF1ParameterSpec;
@@ -6540,7 +7096,7 @@ index 00000000..1210b8d8
 +
 +    goto :goto_0
 +
-+    :cond_6
++    :cond_5
 +    new-instance p3, Ljavax/crypto/spec/OAEPParameterSpec;
 +
 +    sget-object v2, Ljava/security/spec/MGF1ParameterSpec;->SHA1:Ljava/security/spec/MGF1ParameterSpec;
@@ -6550,13 +7106,13 @@ index 00000000..1210b8d8
 +    invoke-direct {p3, v0, v1, v2, v3}, Ljavax/crypto/spec/OAEPParameterSpec;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/security/spec/AlgorithmParameterSpec;Ljavax/crypto/spec/PSource;)V
 +
 +    :goto_0
-+    if-eqz p3, :cond_7
++    if-eqz p3, :cond_6
 +
 +    invoke-virtual {p2, p0, p1, p3}, Ljavax/crypto/Cipher;->init(ILjava/security/Key;Ljava/security/spec/AlgorithmParameterSpec;)V
 +
 +    return-void
 +
-+    :cond_7
++    :cond_6
 +    new-instance p0, Ljava/security/NoSuchAlgorithmException;
 +
 +    new-instance p1, Ljava/lang/StringBuilder;
@@ -6661,10 +7217,10 @@ index 00000000..1210b8d8
 +.end method
 diff --git a/smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$KeyAgreementOperation.smali b/smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$KeyAgreementOperation.smali
 new file mode 100644
-index 00000000..729978b7
+index 00000000..2792fbe2
 --- /dev/null
 +++ b/smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$KeyAgreementOperation.smali
-@@ -0,0 +1,194 @@
+@@ -0,0 +1,177 @@
 +.class final Lio/mesalabs/unica/KeyboxOperationUtils$KeyAgreementOperation;
 +.super Landroid/system/keystore2/IKeystoreOperation$Stub;
 +.source "KeyboxOperationUtils.java"
@@ -6679,10 +7235,6 @@ index 00000000..729978b7
 +    accessFlags = 0x1a
 +    name = "KeyAgreementOperation"
 +.end annotation
-+
-+
-+# static fields
-+.field private static blacklist replacedProvider:Z = false
 +
 +
 +# instance fields
@@ -6708,28 +7260,13 @@ index 00000000..729978b7
 +
 +    iput-object v0, p0, Lio/mesalabs/unica/KeyboxOperationUtils$KeyAgreementOperation;->output:Ljava/io/ByteArrayOutputStream;
 +
-+    sget-boolean v0, Lio/mesalabs/unica/KeyboxOperationUtils$KeyAgreementOperation;->replacedProvider:Z
-+
-+    const-string v1, "BC"
-+
-+    if-nez v0, :cond_0
-+
-+    invoke-static {v1}, Ljava/security/Security;->removeProvider(Ljava/lang/String;)V
-+
 +    new-instance v0, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;
 +
 +    invoke-direct {v0}, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;-><init>()V
 +
-+    invoke-static {v0}, Ljava/security/Security;->addProvider(Ljava/security/Provider;)I
++    const-string v1, "ECDH"
 +
-+    const/4 v0, 0x1
-+
-+    sput-boolean v0, Lio/mesalabs/unica/KeyboxOperationUtils$KeyAgreementOperation;->replacedProvider:Z
-+
-+    :cond_0
-+    const-string v0, "ECDH"
-+
-+    invoke-static {v0, v1}, Ljavax/crypto/KeyAgreement;->getInstance(Ljava/lang/String;Ljava/lang/String;)Ljavax/crypto/KeyAgreement;
++    invoke-static {v1, v0}, Ljavax/crypto/KeyAgreement;->getInstance(Ljava/lang/String;Ljava/security/Provider;)Ljavax/crypto/KeyAgreement;
 +
 +    move-result-object v0
 +
@@ -6763,9 +7300,11 @@ index 00000000..729978b7
 +
 +    const-string p1, "EC"
 +
-+    const-string p2, "BC"
++    new-instance p2, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;
 +
-+    invoke-static {p1, p2}, Ljava/security/KeyFactory;->getInstance(Ljava/lang/String;Ljava/lang/String;)Ljava/security/KeyFactory;
++    invoke-direct {p2}, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;-><init>()V
++
++    invoke-static {p1, p2}, Ljava/security/KeyFactory;->getInstance(Ljava/lang/String;Ljava/security/Provider;)Ljava/security/KeyFactory;
 +
 +    move-result-object p1
 +
@@ -6861,10 +7400,10 @@ index 00000000..729978b7
 +.end method
 diff --git a/smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$SignOperation.smali b/smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$SignOperation.smali
 new file mode 100644
-index 00000000..1932b3ae
+index 00000000..30f5ce26
 --- /dev/null
 +++ b/smali_classes6/io/mesalabs/unica/KeyboxOperationUtils$SignOperation.smali
-@@ -0,0 +1,223 @@
+@@ -0,0 +1,210 @@
 +.class final Lio/mesalabs/unica/KeyboxOperationUtils$SignOperation;
 +.super Landroid/system/keystore2/IKeystoreOperation$Stub;
 +.source "KeyboxOperationUtils.java"
@@ -6881,10 +7420,6 @@ index 00000000..1932b3ae
 +.end annotation
 +
 +
-+# static fields
-+.field private static blacklist replacedProvider:Z = false
-+
-+
 +# instance fields
 +.field private final blacklist cipher:Ljavax/crypto/Cipher;
 +
@@ -6893,7 +7428,7 @@ index 00000000..1932b3ae
 +
 +# direct methods
 +.method constructor blacklist <init>(Ljava/security/PrivateKey;Ljava/lang/String;)V
-+    .locals 4
++    .locals 2
 +    .annotation system Ldalvik/annotation/Throws;
 +        value = {
 +            Ljava/lang/Exception;
@@ -6902,51 +7437,42 @@ index 00000000..1932b3ae
 +
 +    invoke-direct {p0}, Landroid/system/keystore2/IKeystoreOperation$Stub;-><init>()V
 +
-+    sget-boolean v0, Lio/mesalabs/unica/KeyboxOperationUtils$SignOperation;->replacedProvider:Z
-+
-+    const/4 v1, 0x1
-+
-+    const-string v2, "BC"
-+
-+    if-nez v0, :cond_0
-+
-+    invoke-static {v2}, Ljava/security/Security;->removeProvider(Ljava/lang/String;)V
-+
-+    new-instance v0, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;
-+
-+    invoke-direct {v0}, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;-><init>()V
-+
-+    invoke-static {v0}, Ljava/security/Security;->addProvider(Ljava/security/Provider;)I
-+
-+    sput-boolean v1, Lio/mesalabs/unica/KeyboxOperationUtils$SignOperation;->replacedProvider:Z
-+
-+    :cond_0
 +    const-string v0, "RSA/None/Padding"
 +
 +    invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 +
 +    move-result v0
 +
-+    const/4 v3, 0x0
++    const/4 v1, 0x0
 +
-+    if-eqz v0, :cond_1
++    if-eqz v0, :cond_0
 +
-+    invoke-static {p2, v2}, Ljavax/crypto/Cipher;->getInstance(Ljava/lang/String;Ljava/lang/String;)Ljavax/crypto/Cipher;
++    new-instance v0, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;
++
++    invoke-direct {v0}, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;-><init>()V
++
++    invoke-static {p2, v0}, Ljavax/crypto/Cipher;->getInstance(Ljava/lang/String;Ljava/security/Provider;)Ljavax/crypto/Cipher;
 +
 +    move-result-object p2
 +
 +    iput-object p2, p0, Lio/mesalabs/unica/KeyboxOperationUtils$SignOperation;->cipher:Ljavax/crypto/Cipher;
 +
-+    invoke-virtual {p2, v1, p1}, Ljavax/crypto/Cipher;->init(ILjava/security/Key;)V
++    const/4 v0, 0x1
 +
-+    iput-object v3, p0, Lio/mesalabs/unica/KeyboxOperationUtils$SignOperation;->signature:Ljava/security/Signature;
++    invoke-virtual {p2, v0, p1}, Ljavax/crypto/Cipher;->init(ILjava/security/Key;)V
++
++    iput-object v1, p0, Lio/mesalabs/unica/KeyboxOperationUtils$SignOperation;->signature:Ljava/security/Signature;
 +
 +    return-void
 +
-+    :cond_1
-+    iput-object v3, p0, Lio/mesalabs/unica/KeyboxOperationUtils$SignOperation;->cipher:Ljavax/crypto/Cipher;
++    :cond_0
++    iput-object v1, p0, Lio/mesalabs/unica/KeyboxOperationUtils$SignOperation;->cipher:Ljavax/crypto/Cipher;
 +
-+    invoke-static {p2}, Ljava/security/Signature;->getInstance(Ljava/lang/String;)Ljava/security/Signature;
++    new-instance v0, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;
++
++    invoke-direct {v0}, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;-><init>()V
++
++    invoke-static {p2, v0}, Ljava/security/Signature;->getInstance(Ljava/lang/String;Ljava/security/Provider;)Ljava/security/Signature;
 +
 +    move-result-object p2
 +
@@ -7259,10 +7785,10 @@ index 00000000..ad520932
 +.end method
 diff --git a/smali_classes6/io/mesalabs/unica/KeyboxUtils.smali b/smali_classes6/io/mesalabs/unica/KeyboxUtils.smali
 new file mode 100644
-index 00000000..3ddef86c
+index 00000000..db15ccc0
 --- /dev/null
 +++ b/smali_classes6/io/mesalabs/unica/KeyboxUtils.smali
-@@ -0,0 +1,2272 @@
+@@ -0,0 +1,2078 @@
 +.class final Lio/mesalabs/unica/KeyboxUtils;
 +.super Ljava/lang/Object;
 +.source "KeyboxUtils.java"
@@ -7273,50 +7799,8 @@ index 00000000..3ddef86c
 +
 +.field private static final blacklist TAG:Ljava/lang/String; = "KeyboxUtils"
 +
-+.field private static final blacklist sAliases:Ljava/util/Map;
-+    .annotation system Ldalvik/annotation/Signature;
-+        value = {
-+            "Ljava/util/Map<",
-+            "Ljava/lang/Long;",
-+            "Ljava/lang/String;",
-+            ">;"
-+        }
-+    .end annotation
-+.end field
-+
-+.field private static final blacklist sCache:Ljava/util/Map;
-+    .annotation system Ldalvik/annotation/Signature;
-+        value = {
-+            "Ljava/util/Map<",
-+            "Ljava/lang/Long;",
-+            "Landroid/util/Pair<",
-+            "Ljava/security/KeyPair;",
-+            "Landroid/system/keystore2/KeyEntryResponse;",
-+            ">;>;"
-+        }
-+    .end annotation
-+.end field
-+
 +
 +# direct methods
-+.method static constructor blacklist <clinit>()V
-+    .locals 1
-+
-+    new-instance v0, Ljava/util/concurrent/ConcurrentHashMap;
-+
-+    invoke-direct {v0}, Ljava/util/concurrent/ConcurrentHashMap;-><init>()V
-+
-+    sput-object v0, Lio/mesalabs/unica/KeyboxUtils;->sCache:Ljava/util/Map;
-+
-+    new-instance v0, Ljava/util/concurrent/ConcurrentHashMap;
-+
-+    invoke-direct {v0}, Ljava/util/concurrent/ConcurrentHashMap;-><init>()V
-+
-+    sput-object v0, Lio/mesalabs/unica/KeyboxUtils;->sAliases:Ljava/util/Map;
-+
-+    return-void
-+.end method
-+
 +.method private constructor blacklist <init>()V
 +    .locals 0
 +
@@ -7357,56 +7841,6 @@ index 00000000..3ddef86c
 +    move-result-object p0
 +
 +    return-object p0
-+.end method
-+
-+.method static blacklist deleteKeyData(Landroid/system/keystore2/KeyDescriptor;)V
-+    .locals 4
-+
-+    iget v0, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
-+
-+    const/4 v1, 0x4
-+
-+    if-eqz v0, :cond_0
-+
-+    iget v0, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
-+
-+    if-eq v0, v1, :cond_0
-+
-+    return-void
-+
-+    :cond_0
-+    iget-wide v2, p0, Landroid/system/keystore2/KeyDescriptor;->nspace:J
-+
-+    iget v0, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
-+
-+    if-eq v0, v1, :cond_1
-+
-+    iget-object p0, p0, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
-+
-+    invoke-virtual {p0}, Ljava/lang/String;->hashCode()I
-+
-+    move-result p0
-+
-+    int-to-long v2, p0
-+
-+    :cond_1
-+    sget-object p0, Lio/mesalabs/unica/KeyboxUtils;->sCache:Ljava/util/Map;
-+
-+    invoke-static {v2, v3}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
-+
-+    move-result-object v0
-+
-+    invoke-interface {p0, v0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-+
-+    sget-object p0, Lio/mesalabs/unica/KeyboxUtils;->sAliases:Ljava/util/Map;
-+
-+    invoke-static {v2, v3}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
-+
-+    move-result-object v0
-+
-+    invoke-interface {p0, v0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-+
-+    return-void
 +.end method
 +
 +.method private static blacklist dlog(Ljava/lang/String;)V
@@ -7535,7 +7969,7 @@ index 00000000..3ddef86c
 +.end method
 +
 +.method static blacklist fetchKeyData(Landroid/system/keystore2/KeyDescriptor;)Landroid/util/Pair;
-+    .locals 4
++    .locals 5
 +    .annotation system Ldalvik/annotation/Signature;
 +        value = {
 +            "(",
@@ -7543,31 +7977,40 @@ index 00000000..3ddef86c
 +            ")",
 +            "Landroid/util/Pair<",
 +            "Ljava/security/KeyPair;",
-+            "Landroid/system/keystore2/KeyEntryResponse;",
++            "Landroid/system/keystore2/KeyMetadata;",
 +            ">;"
 +        }
 +    .end annotation
 +
 +    iget v0, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
 +
-+    const/4 v1, 0x4
++    const/4 v1, 0x0
++
++    const/4 v2, 0x4
 +
 +    if-eqz v0, :cond_0
 +
 +    iget v0, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
 +
-+    if-eq v0, v1, :cond_0
++    if-eq v0, v2, :cond_0
 +
-+    const/4 p0, 0x0
-+
-+    return-object p0
++    return-object v1
 +
 +    :cond_0
-+    iget-wide v2, p0, Landroid/system/keystore2/KeyDescriptor;->nspace:J
++    invoke-static {}, Lio/mesalabs/unica/KeyboxDbHelper;->getInstance()Lio/mesalabs/unica/KeyboxDbHelper;
 +
-+    iget v0, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
++    move-result-object v0
 +
-+    if-eq v0, v1, :cond_1
++    if-nez v0, :cond_1
++
++    return-object v1
++
++    :cond_1
++    iget-wide v3, p0, Landroid/system/keystore2/KeyDescriptor;->nspace:J
++
++    iget v1, p0, Landroid/system/keystore2/KeyDescriptor;->domain:I
++
++    if-eq v1, v2, :cond_2
 +
 +    iget-object p0, p0, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
 +
@@ -7575,115 +8018,12 @@ index 00000000..3ddef86c
 +
 +    move-result p0
 +
-+    int-to-long v2, p0
-+
-+    :cond_1
-+    sget-object p0, Lio/mesalabs/unica/KeyboxUtils;->sCache:Ljava/util/Map;
-+
-+    invoke-static {v2, v3}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
-+
-+    move-result-object v0
-+
-+    invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
-+
-+    move-result-object p0
-+
-+    check-cast p0, Landroid/util/Pair;
-+
-+    return-object p0
-+.end method
-+
-+.method static blacklist fetchKeyEntries(Ljava/lang/String;)[Landroid/system/keystore2/KeyDescriptor;
-+    .locals 8
-+
-+    sget-object v0, Lio/mesalabs/unica/KeyboxUtils;->sAliases:Ljava/util/Map;
-+
-+    invoke-interface {v0}, Ljava/util/Map;->isEmpty()Z
-+
-+    move-result v1
-+
-+    const/4 v2, 0x0
-+
-+    if-eqz v1, :cond_0
-+
-+    return-object v2
-+
-+    :cond_0
-+    new-instance v1, Ljava/util/ArrayList;
-+
-+    invoke-interface {v0}, Ljava/util/Map;->values()Ljava/util/Collection;
-+
-+    move-result-object v0
-+
-+    invoke-direct {v1, v0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
-+
-+    invoke-static {v1}, Ljava/util/Collections;->sort(Ljava/util/List;)V
-+
-+    new-instance v0, Ljava/util/ArrayList;
-+
-+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
-+
-+    invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
-+
-+    move-result-object v1
-+
-+    :cond_1
-+    :goto_0
-+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
-+
-+    move-result v3
-+
-+    const/4 v4, 0x0
-+
-+    if-eqz v3, :cond_3
-+
-+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-+
-+    move-result-object v3
-+
-+    check-cast v3, Ljava/lang/String;
-+
-+    invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
-+
-+    move-result v5
-+
-+    if-nez v5, :cond_1
-+
-+    if-eqz p0, :cond_2
-+
-+    invoke-virtual {v3, p0}, Ljava/lang/String;->compareTo(Ljava/lang/String;)I
-+
-+    move-result v5
-+
-+    if-lez v5, :cond_1
++    int-to-long v3, p0
 +
 +    :cond_2
-+    new-instance v5, Landroid/system/keystore2/KeyDescriptor;
-+
-+    invoke-direct {v5}, Landroid/system/keystore2/KeyDescriptor;-><init>()V
-+
-+    iput v4, v5, Landroid/system/keystore2/KeyDescriptor;->domain:I
-+
-+    const-wide/16 v6, -0x1
-+
-+    iput-wide v6, v5, Landroid/system/keystore2/KeyDescriptor;->nspace:J
-+
-+    iput-object v3, v5, Landroid/system/keystore2/KeyDescriptor;->alias:Ljava/lang/String;
-+
-+    iput-object v2, v5, Landroid/system/keystore2/KeyDescriptor;->blob:[B
-+
-+    invoke-virtual {v0, v5}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
-+
-+    goto :goto_0
-+
-+    :cond_3
-+    new-array p0, v4, [Landroid/system/keystore2/KeyDescriptor;
-+
-+    invoke-virtual {v0, p0}, Ljava/util/ArrayList;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
++    invoke-virtual {v0, v3, v4}, Lio/mesalabs/unica/KeyboxDbHelper;->fetchKeyData(J)Landroid/util/Pair;
 +
 +    move-result-object p0
-+
-+    check-cast p0, [Landroid/system/keystore2/KeyDescriptor;
 +
 +    return-object p0
 +.end method
@@ -7735,65 +8075,59 @@ index 00000000..3ddef86c
 +        }
 +    .end annotation
 +
-+    const-string v0, "BC"
++    iget v0, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
 +
-+    invoke-static {v0}, Ljava/security/Security;->removeProvider(Ljava/lang/String;)V
++    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 +
-+    new-instance v1, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;
++    move-result-object v0
 +
-+    invoke-direct {v1}, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;-><init>()V
-+
-+    invoke-static {v1}, Ljava/security/Security;->addProvider(Ljava/security/Provider;)I
-+
-+    iget v1, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
++    const/4 v1, 0x3
 +
 +    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 +
 +    move-result-object v1
 +
-+    const/4 v2, 0x3
++    invoke-static {v0, v1}, Ljava/util/Objects;->equals(Ljava/lang/Object;Ljava/lang/Object;)Z
 +
-+    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
++    move-result v0
 +
-+    move-result-object v2
++    if-eqz v0, :cond_1
 +
-+    invoke-static {v1, v2}, Ljava/util/Objects;->equals(Ljava/lang/Object;Ljava/lang/Object;)Z
++    new-instance v0, Ljava/lang/StringBuilder;
 +
-+    move-result v1
++    const-string v1, "Generating EC keypair with curve "
 +
-+    if-eqz v1, :cond_1
-+
-+    new-instance v1, Ljava/lang/StringBuilder;
-+
-+    const-string v2, "Generating EC keypair with curve "
-+
-+    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-+
-+    iget-object v2, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->ecCurveName:Ljava/lang/String;
-+
-+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-+
-+    move-result-object v1
-+
-+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-+
-+    move-result-object v1
-+
-+    invoke-static {v1}, Lio/mesalabs/unica/KeyboxUtils;->dlog(Ljava/lang/String;)V
++    invoke-direct {v0, v1}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 +
 +    iget-object v1, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->ecCurveName:Ljava/lang/String;
 +
-+    const-string v2, "CURVE_25519"
++    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 +
-+    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++    move-result-object v0
 +
-+    move-result v1
++    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 +
-+    if-eqz v1, :cond_0
++    move-result-object v0
 +
-+    const-string p0, "Ed25519"
++    invoke-static {v0}, Lio/mesalabs/unica/KeyboxUtils;->dlog(Ljava/lang/String;)V
 +
-+    invoke-static {p0, v0}, Ljava/security/KeyPairGenerator;->getInstance(Ljava/lang/String;Ljava/lang/String;)Ljava/security/KeyPairGenerator;
++    iget-object v0, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->ecCurveName:Ljava/lang/String;
++
++    const-string v1, "CURVE_25519"
++
++    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result v0
++
++    if-eqz v0, :cond_0
++
++    new-instance p0, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;
++
++    invoke-direct {p0}, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;-><init>()V
++
++    const-string v0, "Ed25519"
++
++    invoke-static {v0, p0}, Ljava/security/KeyPairGenerator;->getInstance(Ljava/lang/String;Ljava/security/Provider;)Ljava/security/KeyPairGenerator;
 +
 +    move-result-object p0
 +
@@ -7804,19 +8138,23 @@ index 00000000..3ddef86c
 +    return-object p0
 +
 +    :cond_0
-+    new-instance v1, Ljava/security/spec/ECGenParameterSpec;
++    new-instance v0, Ljava/security/spec/ECGenParameterSpec;
 +
 +    iget-object p0, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->ecCurveName:Ljava/lang/String;
 +
-+    invoke-direct {v1, p0}, Ljava/security/spec/ECGenParameterSpec;-><init>(Ljava/lang/String;)V
++    invoke-direct {v0, p0}, Ljava/security/spec/ECGenParameterSpec;-><init>(Ljava/lang/String;)V
 +
-+    const-string p0, "ECDSA"
++    new-instance p0, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;
 +
-+    invoke-static {p0, v0}, Ljava/security/KeyPairGenerator;->getInstance(Ljava/lang/String;Ljava/lang/String;)Ljava/security/KeyPairGenerator;
++    invoke-direct {p0}, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;-><init>()V
++
++    const-string v1, "ECDSA"
++
++    invoke-static {v1, p0}, Ljava/security/KeyPairGenerator;->getInstance(Ljava/lang/String;Ljava/security/Provider;)Ljava/security/KeyPairGenerator;
 +
 +    move-result-object p0
 +
-+    invoke-virtual {p0, v1}, Ljava/security/KeyPairGenerator;->initialize(Ljava/security/spec/AlgorithmParameterSpec;)V
++    invoke-virtual {p0, v0}, Ljava/security/KeyPairGenerator;->initialize(Ljava/security/spec/AlgorithmParameterSpec;)V
 +
 +    invoke-virtual {p0}, Ljava/security/KeyPairGenerator;->generateKeyPair()Ljava/security/KeyPair;
 +
@@ -7825,57 +8163,61 @@ index 00000000..3ddef86c
 +    return-object p0
 +
 +    :cond_1
-+    iget v1, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
++    iget v0, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->algorithm:I
++
++    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
++
++    move-result-object v0
++
++    const/4 v1, 0x1
 +
 +    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 +
 +    move-result-object v1
 +
-+    const/4 v2, 0x1
++    invoke-static {v0, v1}, Ljava/util/Objects;->equals(Ljava/lang/Object;Ljava/lang/Object;)Z
 +
-+    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
++    move-result v0
 +
-+    move-result-object v2
++    if-eqz v0, :cond_2
 +
-+    invoke-static {v1, v2}, Ljava/util/Objects;->equals(Ljava/lang/Object;Ljava/lang/Object;)Z
++    new-instance v0, Ljava/lang/StringBuilder;
 +
-+    move-result v1
++    const-string v1, "Generating RSA keypair of size "
 +
-+    if-eqz v1, :cond_2
++    invoke-direct {v0, v1}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 +
-+    new-instance v1, Ljava/lang/StringBuilder;
++    iget v1, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->keySize:I
 +
-+    const-string v2, "Generating RSA keypair of size "
++    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 +
-+    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
++    move-result-object v0
 +
-+    iget v2, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->keySize:I
++    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 +
-+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
++    move-result-object v0
 +
-+    move-result-object v1
++    invoke-static {v0}, Lio/mesalabs/unica/KeyboxUtils;->dlog(Ljava/lang/String;)V
 +
-+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
++    new-instance v0, Ljava/security/spec/RSAKeyGenParameterSpec;
 +
-+    move-result-object v1
-+
-+    invoke-static {v1}, Lio/mesalabs/unica/KeyboxUtils;->dlog(Ljava/lang/String;)V
-+
-+    new-instance v1, Ljava/security/spec/RSAKeyGenParameterSpec;
-+
-+    iget v2, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->keySize:I
++    iget v1, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->keySize:I
 +
 +    iget-object p0, p0, Lio/mesalabs/unica/KeyboxChainGenerator$KeyGenParameters;->rsaPublicExponent:Ljava/math/BigInteger;
 +
-+    invoke-direct {v1, v2, p0}, Ljava/security/spec/RSAKeyGenParameterSpec;-><init>(ILjava/math/BigInteger;)V
++    invoke-direct {v0, v1, p0}, Ljava/security/spec/RSAKeyGenParameterSpec;-><init>(ILjava/math/BigInteger;)V
 +
-+    const-string p0, "RSA"
++    new-instance p0, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;
 +
-+    invoke-static {p0, v0}, Ljava/security/KeyPairGenerator;->getInstance(Ljava/lang/String;Ljava/lang/String;)Ljava/security/KeyPairGenerator;
++    invoke-direct {p0}, Lcom/android/internal/org/bouncycastle/jce/provider/BouncyCastleProvider;-><init>()V
++
++    const-string v1, "RSA"
++
++    invoke-static {v1, p0}, Ljava/security/KeyPairGenerator;->getInstance(Ljava/lang/String;Ljava/security/Provider;)Ljava/security/KeyPairGenerator;
 +
 +    move-result-object p0
 +
-+    invoke-virtual {p0, v1}, Ljava/security/KeyPairGenerator;->initialize(Ljava/security/spec/AlgorithmParameterSpec;)V
++    invoke-virtual {p0, v0}, Ljava/security/KeyPairGenerator;->initialize(Ljava/security/spec/AlgorithmParameterSpec;)V
 +
 +    invoke-virtual {p0}, Ljava/security/KeyPairGenerator;->generateKeyPair()Ljava/security/KeyPair;
 +
@@ -8396,6 +8738,36 @@ index 00000000..3ddef86c
 +
 +    :cond_3
 +    return-object v1
++.end method
++
++.method static blacklist getApplicationContext()Landroid/content/Context;
++    .locals 3
++
++    :try_start_0
++    invoke-static {}, Landroid/app/ActivityThread;->currentApplication()Landroid/app/Application;
++
++    move-result-object v0
++
++    invoke-virtual {v0}, Landroid/app/Application;->getApplicationContext()Landroid/content/Context;
++
++    move-result-object v0
++    :try_end_0
++    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
++
++    return-object v0
++
++    :catch_0
++    move-exception v0
++
++    const-string v1, "KeyboxUtils"
++
++    const-string v2, "Error getting application context"
++
++    invoke-static {v1, v2, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
++
++    const/4 v0, 0x0
++
++    return-object v0
 +.end method
 +
 +.method static blacklist getAttestationVersion()I
@@ -9494,46 +9866,6 @@ index 00000000..3ddef86c
 +    invoke-virtual {v0, p0}, Ljava/security/SecureRandom;->nextBytes([B)V
 +
 +    return-object p0
-+.end method
-+
-+.method static blacklist storeKeyData(JLjava/security/KeyPair;Landroid/system/keystore2/KeyEntryResponse;)V
-+    .locals 1
-+
-+    sget-object v0, Lio/mesalabs/unica/KeyboxUtils;->sCache:Ljava/util/Map;
-+
-+    invoke-static {p0, p1}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
-+
-+    move-result-object p0
-+
-+    new-instance p1, Landroid/util/Pair;
-+
-+    invoke-direct {p1, p2, p3}, Landroid/util/Pair;-><init>(Ljava/lang/Object;Ljava/lang/Object;)V
-+
-+    invoke-interface {v0, p0, p1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-+
-+    return-void
-+.end method
-+
-+.method static blacklist storeKeyData(Ljava/lang/String;Ljava/security/KeyPair;Landroid/system/keystore2/KeyEntryResponse;)V
-+    .locals 2
-+
-+    invoke-virtual {p0}, Ljava/lang/String;->hashCode()I
-+
-+    move-result v0
-+
-+    int-to-long v0, v0
-+
-+    invoke-static {v0, v1, p1, p2}, Lio/mesalabs/unica/KeyboxUtils;->storeKeyData(JLjava/security/KeyPair;Landroid/system/keystore2/KeyEntryResponse;)V
-+
-+    sget-object p1, Lio/mesalabs/unica/KeyboxUtils;->sAliases:Ljava/util/Map;
-+
-+    invoke-static {v0, v1}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
-+
-+    move-result-object p2
-+
-+    invoke-interface {p1, p2, p0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-+
-+    return-void
 +.end method
 -- 
 2.52.0
