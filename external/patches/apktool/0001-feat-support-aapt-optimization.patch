@@ -1,4 +1,4 @@
-From 6336284663b2c67cd05df315335b33c6a647099c Mon Sep 17 00:00:00 2001
+From 136d78d0aa2b2a08034a9fa7ca87e72359febe23 Mon Sep 17 00:00:00 2001
 From: Kofua <1638183271zjn@gmail.com>
 Date: Sat, 30 Mar 2024 22:18:41 +0800
 Subject: [PATCH] feat: support aapt optimization
@@ -10,10 +10,10 @@ Subject: [PATCH] feat: support aapt optimization
  3 files changed, 108 insertions(+)
 
 diff --git a/brut.apktool/apktool-cli/src/main/java/brut/apktool/Main.java b/brut.apktool/apktool-cli/src/main/java/brut/apktool/Main.java
-index 3ed6cc46..6db3b1d5 100644
+index f69373ed..fd97bf28 100644
 --- a/brut.apktool/apktool-cli/src/main/java/brut/apktool/Main.java
 +++ b/brut.apktool/apktool-cli/src/main/java/brut/apktool/Main.java
-@@ -159,6 +159,21 @@ public class Main {
+@@ -157,6 +157,21 @@ public class Main {
          .desc("Disable repacking of the built files into a new apk.")
          .get();
  
@@ -35,7 +35,7 @@ index 3ed6cc46..6db3b1d5 100644
      private static final Option buildNoCrunchOption = Option.builder()
          .longOpt("no-crunch")
          .desc("Disable crunching of resource files during the build step.")
-@@ -264,6 +279,9 @@ public class Main {
+@@ -262,6 +277,9 @@ public class Main {
                  buildOptions.addOption(buildDebuggableOption);
                  buildOptions.addOption(buildNetSecConfOption);
                  buildOptions.addOption(buildNoApkOption);
@@ -45,7 +45,7 @@ index 3ed6cc46..6db3b1d5 100644
                  buildOptions.addOption(buildNoCrunchOption);
              }
          }
-@@ -543,6 +561,15 @@ public class Main {
+@@ -540,6 +558,15 @@ public class Main {
          if (cli.hasOption(buildNoApkOption)) {
              config.setNoApk(true);
          }
@@ -62,7 +62,7 @@ index 3ed6cc46..6db3b1d5 100644
              config.setNoCrunch(true);
          }
 diff --git a/brut.apktool/apktool-lib/src/main/java/brut/androlib/Config.java b/brut.apktool/apktool-lib/src/main/java/brut/androlib/Config.java
-index cbd516b5..f50b7f69 100644
+index 42d73103..e6a883d1 100644
 --- a/brut.apktool/apktool-lib/src/main/java/brut/androlib/Config.java
 +++ b/brut.apktool/apktool-lib/src/main/java/brut/androlib/Config.java
 @@ -49,6 +49,12 @@ public class Config {
@@ -122,29 +122,28 @@ index cbd516b5..f50b7f69 100644
 +    }
  }
 diff --git a/brut.apktool/apktool-lib/src/main/java/brut/androlib/res/AaptInvoker.java b/brut.apktool/apktool-lib/src/main/java/brut/androlib/res/AaptInvoker.java
-index 85892e71..3e76f11d 100644
+index 2844b58d..83adf005 100644
 --- a/brut.apktool/apktool-lib/src/main/java/brut/androlib/res/AaptInvoker.java
 +++ b/brut.apktool/apktool-lib/src/main/java/brut/androlib/res/AaptInvoker.java
-@@ -23,7 +23,11 @@ import brut.common.BrutException;
+@@ -25,6 +25,10 @@ import brut.common.BrutException;
  import brut.util.OS;
  
  import java.io.File;
 +import java.io.IOException;
 +import java.nio.file.Files;
 +import java.nio.file.Path;
- import java.nio.file.Paths;
 +import java.nio.file.StandardCopyOption;
  import java.util.ArrayList;
  import java.util.List;
  import java.util.Map;
-@@ -191,5 +195,45 @@ public class AaptInvoker {
+@@ -180,6 +184,46 @@ public class AaptInvoker {
          } catch (BrutException ex) {
              throw new AndrolibException(ex);
          }
 +
 +        if (mConfig.isShortenResPaths() || mConfig.isEnableSparseEncoding() || mConfig.isCollapseResNames()) {
-+            Path inputFilePath = new File(apkFile.getParent(), apkFile.getName() + ".tmp").toPath();
-+            Path apkFilePath = apkFile.toPath();
++            Path inputFilePath = new File(outApk.getParent(), outApk.getName() + ".tmp").toPath();
++            Path apkFilePath = outApk.toPath();
 +            try {
 +                Files.copy(apkFilePath, inputFilePath, StandardCopyOption.REPLACE_EXISTING);
 +                Files.delete(apkFilePath);
@@ -182,7 +181,8 @@ index 85892e71..3e76f11d 100644
 +            }
 +        }
      }
- }
+ 
+     private List<File> getIncludeFiles() throws AndrolibException {
 -- 
 2.52.0
 
