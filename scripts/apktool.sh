@@ -110,13 +110,6 @@ DECODE()
     # - Use .locals directive instead of the .registers one
     # - Use a sequential numbering scheme for labels
     EVAL "apktool d --no-debug-info -j \"$THREAD_COUNT\" -o \"$OUTPUT_PATH\" -p \"$FRAMEWORK_DIR\" -t \"$FRAMEWORK_TAG\" \"$INPUT_FILE\"" || exit 1
-
-    # https://github.com/iBotPeaches/Apktool/issues/3615
-    if [[ "$INPUT_FILE" == *"framework.jar" ]]; then
-        if unzip -l "$INPUT_FILE" | grep -q "debian.mime.types"; then
-            unzip -q "$INPUT_FILE" "res/*" -d "$OUTPUT_PATH/unknown"
-        fi
-    fi
 }
 
 PREPARE_SCRIPT()
