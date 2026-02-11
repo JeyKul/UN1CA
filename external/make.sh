@@ -208,7 +208,6 @@ if $APKTOOL; then
     APKTOOL_CMDS=(
         "git reset --hard"
         "git apply \"$SRC_DIR/external/patches/apktool/0001-feat-support-aapt-optimization.patch\""
-        "git apply \"$SRC_DIR/external/patches/apktool/0002-feat-add-DEX-container-format-support.patch\""
         "./gradlew build shadowJar"
         "cp -a \"scripts/linux/apktool\" \"$TOOLS_DIR/bin\""
         "cp -a \"brut.apktool/apktool-cli/build/libs/apktool-cli.jar\" \"$TOOLS_DIR/bin/apktool.jar\""
