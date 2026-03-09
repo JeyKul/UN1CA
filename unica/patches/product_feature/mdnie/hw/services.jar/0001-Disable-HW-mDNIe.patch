@@ -1,4 +1,4 @@
-From 166371261b0cb5e34ca46e7c48bbe2a22a1192d3 Mon Sep 17 00:00:00 2001
+From 8d00aef05b9f1e9bb83ecbafa0511671b654a704 Mon Sep 17 00:00:00 2001
 From: Salvo Giangreco <giangrecosalvo9@gmail.com>
 Date: Sat, 30 Aug 2025 15:50:08 +0200
 Subject: [PATCH] Disable HW mDNIe
@@ -12,7 +12,7 @@ Subject: [PATCH] Disable HW mDNIe
  5 files changed, 203 insertions(+), 946 deletions(-)
 
 diff --git a/smali/com/android/server/accessibility/AccessibilityManagerService$2.smali b/smali/com/android/server/accessibility/AccessibilityManagerService$2.smali
-index 9df614efb..64fd0f8d9 100644
+index 0fb2ca3d4..5c19b43f0 100644
 --- a/smali/com/android/server/accessibility/AccessibilityManagerService$2.smali
 +++ b/smali/com/android/server/accessibility/AccessibilityManagerService$2.smali
 @@ -79,28 +79,14 @@
@@ -57,7 +57,7 @@ index 9df614efb..64fd0f8d9 100644
      iget-object p2, p0, Lcom/android/server/accessibility/AccessibilityManagerService$2;->this$0:Lcom/android/server/accessibility/AccessibilityManagerService;
  
 @@ -275,24 +261,9 @@
-     invoke-virtual {p2, v2, v4, v0, v1}, Landroid/content/ContentResolver;->registerContentObserver(Landroid/net/Uri;ZLandroid/database/ContentObserver;I)V
+     invoke-virtual {p2, v2, v5, v0, v1}, Landroid/content/ContentResolver;->registerContentObserver(Landroid/net/Uri;ZLandroid/database/ContentObserver;I)V
  
      :cond_4
 -    iget-object p2, p0, Lcom/android/server/accessibility/AccessibilityManagerService$2;->this$0:Lcom/android/server/accessibility/AccessibilityManagerService;
@@ -272,7 +272,7 @@ index 9df614efb..64fd0f8d9 100644
  
 -    :cond_11
 +    :cond_10
-     move v0, v5
+     move v0, v4
  
      goto :goto_6
 @@ -603,14 +574,14 @@
@@ -286,7 +286,7 @@ index 9df614efb..64fd0f8d9 100644
  
 -    :cond_12
 +    :cond_11
-     move v0, v4
+     move v0, v5
  
 -    :cond_13
 +    :cond_12
@@ -357,18 +357,18 @@ index 9df614efb..64fd0f8d9 100644
 -    if-nez v10, :cond_16
 +    if-nez v10, :cond_15
  
-     move v10, v5
+     move v10, v4
  
      goto :goto_9
  
 -    :cond_16
 +    :cond_15
-     move v10, v4
+     move v10, v5
  
      :goto_9
 @@ -783,9 +754,9 @@
  
-     invoke-virtual {p0, v7, v11, v8, v5}, Lcom/android/server/accessibility/AccessibilityManagerService;->readColonDelimitedStringToSet(Ljava/lang/String;Ljava/util/function/Function;Ljava/util/Set;Z)V
+     invoke-virtual {p0, v7, v11, v8, v4}, Lcom/android/server/accessibility/AccessibilityManagerService;->readColonDelimitedStringToSet(Ljava/lang/String;Ljava/util/function/Function;Ljava/util/Set;Z)V
  
 -    if-eqz v10, :cond_18
 +    if-eqz v10, :cond_17
@@ -385,13 +385,13 @@ index 9df614efb..64fd0f8d9 100644
 -    if-eqz v3, :cond_17
 +    if-eqz v3, :cond_16
  
-     move v3, v5
+     move v3, v4
  
      goto :goto_a
  
 -    :cond_17
 +    :cond_16
-     move v3, v4
+     move v3, v5
  
      :goto_a
 -    if-eqz v3, :cond_18
@@ -418,11 +418,11 @@ index 9df614efb..64fd0f8d9 100644
  
 -    :cond_19
 +    :cond_18
-     new-instance p2, Lcom/android/server/accessibility/AccessibilityManagerService$$ExternalSyntheticLambda7;
+     new-instance p2, Lcom/android/server/accessibility/AccessibilityManagerService$$ExternalSyntheticLambda10;
  
-     invoke-direct {p2, v5}, Lcom/android/server/accessibility/AccessibilityManagerService$$ExternalSyntheticLambda7;-><init>(I)V
+     invoke-direct {p2, v5}, Lcom/android/server/accessibility/AccessibilityManagerService$$ExternalSyntheticLambda10;-><init>(I)V
  
-     invoke-virtual {p0, v7, p2, v8, v5}, Lcom/android/server/accessibility/AccessibilityManagerService;->readColonDelimitedStringToSet(Ljava/lang/String;Ljava/util/function/Function;Ljava/util/Set;Z)V
+     invoke-virtual {p0, v7, p2, v8, v4}, Lcom/android/server/accessibility/AccessibilityManagerService;->readColonDelimitedStringToSet(Ljava/lang/String;Ljava/util/function/Function;Ljava/util/Set;Z)V
  
 -    :cond_1a
 +    :cond_19
@@ -448,7 +448,7 @@ index 9df614efb..64fd0f8d9 100644
      return-void
  
 diff --git a/smali/com/android/server/accessibility/AccessibilityManagerService$AODStateContentObserver.smali b/smali/com/android/server/accessibility/AccessibilityManagerService$AODStateContentObserver.smali
-index dc3577349..cae820ce4 100644
+index 748bcf366..b6ddf40ab 100644
 --- a/smali/com/android/server/accessibility/AccessibilityManagerService$AODStateContentObserver.smali
 +++ b/smali/com/android/server/accessibility/AccessibilityManagerService$AODStateContentObserver.smali
 @@ -83,7 +83,7 @@
@@ -540,7 +540,7 @@ index dc3577349..cae820ce4 100644
  
      :pswitch_3
 diff --git a/smali/com/android/server/accessibility/AccessibilityManagerService.smali b/smali/com/android/server/accessibility/AccessibilityManagerService.smali
-index 6130fdcbb..f9c139a51 100644
+index d6f7c4faa..1f9c0cbd7 100644
 --- a/smali/com/android/server/accessibility/AccessibilityManagerService.smali
 +++ b/smali/com/android/server/accessibility/AccessibilityManagerService.smali
 @@ -1026,100 +1026,6 @@
@@ -644,7 +644,7 @@ index 6130fdcbb..f9c139a51 100644
  .method static constructor <clinit>()V
      .locals 2
  
-@@ -17575,15 +17481,15 @@
+@@ -17599,15 +17505,15 @@
  .end method
  
  .method public final semToggleDarkScreenMode()V
@@ -664,7 +664,7 @@ index 6130fdcbb..f9c139a51 100644
  
      invoke-virtual {p0}, Lcom/android/server/accessibility/AccessibilityManagerService;->isScreenReaderEnabled()Z
  
-@@ -17595,200 +17501,88 @@
+@@ -17619,200 +17525,88 @@
  
      if-nez v0, :cond_0
  
@@ -892,7 +892,7 @@ index 6130fdcbb..f9c139a51 100644
  .end method
  
 diff --git a/smali_classes2/com/samsung/android/hardware/display/SemMdnieManagerService.smali b/smali_classes2/com/samsung/android/hardware/display/SemMdnieManagerService.smali
-index ea58c4118..1fdf59d40 100644
+index de82d6c67..f6084cbee 100644
 --- a/smali_classes2/com/samsung/android/hardware/display/SemMdnieManagerService.smali
 +++ b/smali_classes2/com/samsung/android/hardware/display/SemMdnieManagerService.smali
 @@ -36,8 +36,6 @@
@@ -1449,7 +1449,7 @@ index ea58c4118..1fdf59d40 100644
      const/4 p0, 0x0
  
 diff --git a/smali_classes2/com/samsung/android/knox/custom/KnoxCustomManagerService.smali b/smali_classes2/com/samsung/android/knox/custom/KnoxCustomManagerService.smali
-index d7d0a3b9b..3b579d913 100644
+index 6aeca8509..83f9d3ecb 100644
 --- a/smali_classes2/com/samsung/android/knox/custom/KnoxCustomManagerService.smali
 +++ b/smali_classes2/com/samsung/android/knox/custom/KnoxCustomManagerService.smali
 @@ -27517,60 +27517,51 @@
@@ -1755,5 +1755,5 @@ index d7d0a3b9b..3b579d913 100644
  
  .method public final setScreenOffOnHomeLongPressState(Z)I
 -- 
-2.52.0
+2.53.0
 

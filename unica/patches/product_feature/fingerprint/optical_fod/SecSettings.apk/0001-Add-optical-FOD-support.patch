@@ -1,4 +1,4 @@
-From 5d3bf6d9fc7e3c5d28cda5d7cc8456eed61a6366 Mon Sep 17 00:00:00 2001
+From 9675fb03d32168bfe9625b6dd01c1066569cc471 Mon Sep 17 00:00:00 2001
 From: Salvo Giangreco <giangrecosalvo9@gmail.com>
 Date: Mon, 8 Sep 2025 22:25:57 +0200
 Subject: [PATCH] Add optical FOD support
@@ -11,33 +11,33 @@ Subject: [PATCH] Add optical FOD support
  4 files changed, 577 insertions(+), 334 deletions(-)
 
 diff --git a/smali_classes4/com/samsung/android/settings/biometrics/BiometricsDisclaimerActivity.smali b/smali_classes4/com/samsung/android/settings/biometrics/BiometricsDisclaimerActivity.smali
-index 499ee0114..9e6350342 100644
+index a7bdd3587..09b7deea9 100644
 --- a/smali_classes4/com/samsung/android/settings/biometrics/BiometricsDisclaimerActivity.smali
 +++ b/smali_classes4/com/samsung/android/settings/biometrics/BiometricsDisclaimerActivity.smali
 @@ -1475,7 +1475,7 @@
  
      invoke-virtual {v0, v3}, Landroid/widget/TextView;->setText(I)V
  
--    const v0, 0x7f1425a9
-+    const v0, 0x7f1425a7
+-    const v0, 0x7f1425ac
++    const v0, 0x7f1425aa
  
      invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(I)V
  
 diff --git a/smali_classes4/com/samsung/android/settings/biometrics/SuwBiometricsDisclaimerActivity.smali b/smali_classes4/com/samsung/android/settings/biometrics/SuwBiometricsDisclaimerActivity.smali
-index f63a4b2ef..001ee5dad 100644
+index b7a242cfe..9d678f44c 100644
 --- a/smali_classes4/com/samsung/android/settings/biometrics/SuwBiometricsDisclaimerActivity.smali
 +++ b/smali_classes4/com/samsung/android/settings/biometrics/SuwBiometricsDisclaimerActivity.smali
 @@ -608,7 +608,7 @@
  
      invoke-virtual {v1, v6}, Landroid/widget/TextView;->setText(I)V
  
--    const v1, 0x7f1425a9
-+    const v1, 0x7f1425a7
+-    const v1, 0x7f1425ac
++    const v1, 0x7f1425aa
  
      invoke-virtual {v5, v1}, Landroid/widget/TextView;->setText(I)V
  
 diff --git a/smali_classes4/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettings.smali b/smali_classes4/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettings.smali
-index 4274b541f..34653a504 100644
+index 6c967cfe5..36e00e048 100644
 --- a/smali_classes4/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettings.smali
 +++ b/smali_classes4/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettings.smali
 @@ -73,10 +73,14 @@
@@ -490,7 +490,7 @@ index 4274b541f..34653a504 100644
 +
 +    iget-object v8, p0, Lcom/samsung/android/settings/biometrics/fingerprint/FingerprintSettings;->mAlwaysOn:Landroidx/preference/SwitchPreference;
 +
-+    const v10, 0x7f142594
++    const v10, 0x7f142597
 +
 +    invoke-virtual {v8, v10}, Landroidx/preference/Preference;->setSummary(I)V
  
@@ -499,7 +499,7 @@ index 4274b541f..34653a504 100644
 +    :cond_c
      iget-object v8, p0, Lcom/samsung/android/settings/biometrics/fingerprint/FingerprintSettings;->mAlwaysOn:Landroidx/preference/SwitchPreference;
  
-     const v10, 0x7f142593
+     const v10, 0x7f142596
  
      invoke-virtual {v8, v10}, Landroidx/preference/Preference;->setSummary(I)V
  
@@ -1487,7 +1487,7 @@ index 4274b541f..34653a504 100644
 -    if-lt v2, v0, :cond_3b
 +    if-lt v2, v0, :cond_3d
  
-     const v0, 0x7f1425da
+     const v0, 0x7f1425dd
  
 -    goto :goto_1d
 +    goto :goto_1f
@@ -1495,7 +1495,7 @@ index 4274b541f..34653a504 100644
      :catch_3
 -    :cond_3b
 +    :cond_3d
-     const v0, 0x7f1413a2
+     const v0, 0x7f1413a5
  
 -    :goto_1d
 +    :goto_1f
@@ -1592,7 +1592,7 @@ index 4274b541f..34653a504 100644
      return-void
  .end method
 diff --git a/smali_classes4/com/samsung/android/settings/biometrics/fingerprint/RegisterFingerprint.smali b/smali_classes4/com/samsung/android/settings/biometrics/fingerprint/RegisterFingerprint.smali
-index 08f38a683..b36f6b485 100644
+index 70b1cc9a3..1f31a63fd 100644
 --- a/smali_classes4/com/samsung/android/settings/biometrics/fingerprint/RegisterFingerprint.smali
 +++ b/smali_classes4/com/samsung/android/settings/biometrics/fingerprint/RegisterFingerprint.smali
 @@ -30,6 +30,8 @@
@@ -1724,10 +1724,10 @@ index 08f38a683..b36f6b485 100644
 +    :goto_4
 +    iget-boolean v1, p0, Lcom/samsung/android/settings/biometrics/fingerprint/RegisterFingerprint;->mIsShowSurfaceUpdates:Z
 +
-+    const v3, 0x7f1425ae
++    const v3, 0x7f1425b1
  
--    const v3, 0x7f142596
-+    const v4, 0x7f142596
+-    const v3, 0x7f142599
++    const v4, 0x7f142599
  
 -    if-eqz v1, :cond_1
 +    if-eqz v1, :cond_6
@@ -1737,7 +1737,7 @@ index 08f38a683..b36f6b485 100644
      move-result-object p1
  
 -    const v0, 0x7f1412f9
-+    const v0, 0x7f142dc6
++    const v0, 0x7f142dc9
  
      invoke-virtual {p0, v0}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
  
@@ -1745,7 +1745,7 @@ index 08f38a683..b36f6b485 100644
  
      move-result-object v0
  
--    const v1, 0x7f1425ae
+-    const v1, 0x7f1425b1
 +    invoke-virtual {p1, v3, v0}, Landroid/content/res/Resources;->getString(I[Ljava/lang/Object;)Ljava/lang/String;
 +
 +    move-result-object p1
@@ -2246,5 +2246,5 @@ index 08f38a683..b36f6b485 100644
  
  .method public final onDestroy()V
 -- 
-2.51.0
+2.53.0
 

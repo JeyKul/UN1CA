@@ -1,4 +1,4 @@
-From a0b3dabde286f7e69c34c700fb7a57414eb22f76 Mon Sep 17 00:00:00 2001
+From 43bcf1d72d49bff710f033699c61404a63f53828 Mon Sep 17 00:00:00 2001
 From: Salvo Giangreco <giangrecosalvo9@gmail.com>
 Date: Mon, 8 Sep 2025 23:08:13 +0200
 Subject: [PATCH] Disable MOBILEAP_PRIORITIZE_TRAFFIC support
@@ -12,7 +12,7 @@ Subject: [PATCH] Disable MOBILEAP_PRIORITIZE_TRAFFIC support
  5 files changed, 380 insertions(+), 603 deletions(-)
 
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApCloudBackupRestore.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApCloudBackupRestore.smali
-index 99763db7c..8dd0eeb7c 100644
+index 9595a78f1..3e99ee0d4 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApCloudBackupRestore.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApCloudBackupRestore.smali
 @@ -775,19 +775,6 @@
@@ -1494,7 +1494,7 @@ index 99763db7c..8dd0eeb7c 100644
      .catchall {:try_start_a .. :try_end_a} :catchall_1
  
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSettings$1.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSettings$1.smali
-index a668ab179..b7742fe79 100644
+index 0374a51f7..51108eb00 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSettings$1.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSettings$1.smali
 @@ -88,7 +88,7 @@
@@ -1510,7 +1510,7 @@ index a668ab179..b7742fe79 100644
  
      invoke-direct {v1, p1}, Landroid/provider/SearchIndexableData;-><init>(Landroid/content/Context;)V
  
--    const v3, 0x7f143609
+-    const v3, 0x7f14360c
 -
 -    invoke-static {v3}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
 -
@@ -1539,8 +1539,8 @@ index a668ab179..b7742fe79 100644
 -
 -    invoke-direct {v1, p1}, Landroid/provider/SearchIndexableData;-><init>(Landroid/content/Context;)V
 -
--    const p1, 0x7f14363b
-+    const p1, 0x7f143609
+-    const p1, 0x7f14363e
++    const p1, 0x7f14360c
  
      invoke-static {p1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
  
@@ -1560,7 +1560,7 @@ index a668ab179..b7742fe79 100644
      return-object p0
  .end method
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore.smali
-index f0826736d..4c2033fd5 100644
+index ca026d7cb..6ad952c77 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore.smali
 @@ -987,7 +987,7 @@
@@ -2154,7 +2154,7 @@ index f0826736d..4c2033fd5 100644
      throw v1
  .end method
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/smartpriority/WifiApSmartPrioritySwitchController.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/smartpriority/WifiApSmartPrioritySwitchController.smali
-index 9d80527df..f839d2c9a 100644
+index 7f1b83c95..079ce2b11 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/smartpriority/WifiApSmartPrioritySwitchController.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/smartpriority/WifiApSmartPrioritySwitchController.smali
 @@ -45,15 +45,6 @@
@@ -2203,7 +2203,7 @@ index 9d80527df..f839d2c9a 100644
      const/4 p0, 0x1
  
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApFrameworkUtils.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApFrameworkUtils.smali
-index 0855f0eca..cc2504c88 100644
+index 071e5fc89..e84c74b6f 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApFrameworkUtils.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApFrameworkUtils.smali
 @@ -782,50 +782,6 @@
@@ -2308,5 +2308,5 @@ index 0855f0eca..cc2504c88 100644
      .locals 8
  
 -- 
-2.51.0
+2.53.0
 

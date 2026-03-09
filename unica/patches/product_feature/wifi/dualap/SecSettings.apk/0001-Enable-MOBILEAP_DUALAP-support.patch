@@ -1,4 +1,4 @@
-From 151842f9c7f28fffa006458b5a2fecc87be685af Mon Sep 17 00:00:00 2001
+From 91a0e9cdbeadd6a3c24fbbc740e096b08cf5a7cf Mon Sep 17 00:00:00 2001
 From: Salvo Giangreco <giangrecosalvo9@gmail.com>
 Date: Sat, 29 Nov 2025 18:01:15 +0100
 Subject: [PATCH] Enable MOBILEAP_DUALAP support
@@ -25,7 +25,7 @@ UN1CA: this patch is not complete! Please check unica/patches/product_feature/cu
  create mode 100644 smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore$3.smali
 
 diff --git a/smali_classes2/com/android/settings/Utils.smali b/smali_classes2/com/android/settings/Utils.smali
-index a0d5ecdbc..4d3006e34 100644
+index a674d72c7..46fee3c32 100644
 --- a/smali_classes2/com/android/settings/Utils.smali
 +++ b/smali_classes2/com/android/settings/Utils.smali
 @@ -16,6 +16,8 @@
@@ -107,7 +107,7 @@ index a0d5ecdbc..4d3006e34 100644
      .locals 13
  
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApEditSettings$SaveButtonClickListener.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApEditSettings$SaveButtonClickListener.smali
-index 087b11edb..230f8f21d 100644
+index 501307e1b..f2f7e1fd5 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApEditSettings$SaveButtonClickListener.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApEditSettings$SaveButtonClickListener.smali
 @@ -28,13 +28,13 @@
@@ -247,7 +247,7 @@ index 087b11edb..230f8f21d 100644
  
      nop
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApEditSettings.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApEditSettings.smali
-index 9463f24bc..ac4a9bea6 100644
+index 8544a94f8..46173554a 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApEditSettings.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApEditSettings.smali
 @@ -79,6 +79,87 @@
@@ -609,7 +609,7 @@ index 9463f24bc..ac4a9bea6 100644
  .end method
  
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore$1.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore$1.smali
-index 5716095a4..1cffca121 100644
+index 202031916..39af2471f 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore$1.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore$1.smali
 @@ -1185,6 +1185,8 @@
@@ -976,7 +976,7 @@ index 000000000..5ca57b054
 +.super Landroid/util/SparseIntArray;
 +.source "qb/103318193 2390ff46673e3ef514dc97fdebae472cba4dc92ba53b83fbd6db12d168e29743"
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore.smali
-index c0112824a..18b8d778c 100644
+index ca026d7cb..4867abee7 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSmartSwitchBackupRestore.smali
 @@ -3732,31 +3732,33 @@
@@ -1302,7 +1302,7 @@ index c0112824a..18b8d778c 100644
      :try_start_a
      invoke-virtual {v10}, Ljava/io/DataInputStream;->close()V
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSwitchEnabler.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSwitchEnabler.smali
-index d9dac483b..61f1c2f59 100644
+index 1f398d36a..27537bd03 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSwitchEnabler.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSwitchEnabler.smali
 @@ -360,33 +360,48 @@
@@ -1870,7 +1870,7 @@ index d9dac483b..61f1c2f59 100644
      new-instance v0, Landroid/os/Handler;
  
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSwitchEnabler1.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSwitchEnabler1.smali
-index 25c0eeff4..5c70e9b80 100644
+index 7ff1b95f8..3c0c89770 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSwitchEnabler1.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApSwitchEnabler1.smali
 @@ -1663,6 +1663,10 @@
@@ -1885,7 +1885,7 @@ index 25c0eeff4..5c70e9b80 100644
  
      invoke-virtual {p1}, Lcom/samsung/android/settings/wifi/mobileap/views/WifiApDialog;->showIfEligible$1()Z
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApWarning.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApWarning.smali
-index 65452f430..b239f6050 100644
+index 0b889e5f2..56f20b1da 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApWarning.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/WifiApWarning.smali
 @@ -306,7 +306,7 @@
@@ -2657,7 +2657,7 @@ index 65452f430..b239f6050 100644
      return-void
  .end method
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/configure/WifiApConfigureWifiSharingController.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/configure/WifiApConfigureWifiSharingController.smali
-index 968e7b78a..5ceddcea8 100644
+index 02435f893..722fb0798 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/configure/WifiApConfigureWifiSharingController.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/configure/WifiApConfigureWifiSharingController.smali
 @@ -373,45 +373,15 @@
@@ -2818,7 +2818,7 @@ index 968e7b78a..5ceddcea8 100644
      invoke-direct {p0, v0}, Lcom/samsung/android/settings/wifi/mobileap/configure/WifiApConfigureWifiSharingController;->updateState(Z)V
  
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/datamodels/WifiApBandConfig.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/datamodels/WifiApBandConfig.smali
-index a4ae0e121..6a3abae74 100644
+index d6dd61a32..9d1ed185c 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/datamodels/WifiApBandConfig.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/datamodels/WifiApBandConfig.smali
 @@ -58,13 +58,13 @@
@@ -2832,8 +2832,8 @@ index a4ae0e121..6a3abae74 100644
  
      if-eqz v2, :cond_1
  
--    const v2, 0x7f143527
-+    const v2, 0x7f143525
+-    const v2, 0x7f14352a
++    const v2, 0x7f143528
  
      invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
  
@@ -2848,8 +2848,8 @@ index a4ae0e121..6a3abae74 100644
  
      if-eqz v2, :cond_2
  
--    const v2, 0x7f142a4b
-+    const v2, 0x7f143527
+-    const v2, 0x7f142a4e
++    const v2, 0x7f14352a
  
      invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
  
@@ -2863,7 +2863,7 @@ index a4ae0e121..6a3abae74 100644
 +
 +    if-eqz v2, :cond_3
 +
-+    const v2, 0x7f142a4b
++    const v2, 0x7f142a4e
 +
 +    invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
 +
@@ -2921,7 +2921,7 @@ index a4ae0e121..6a3abae74 100644
      invoke-static {v4, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
 @@ -140,13 +166,13 @@
  
-     const v6, 0x7f1434fb    # 1.9700083E38f
+     const v6, 0x7f1434fe    # 1.970009E38f
  
 -    if-eqz v1, :cond_9
 +    if-eqz v1, :cond_c
@@ -2951,7 +2951,7 @@ index a4ae0e121..6a3abae74 100644
 +
 +    move-result-object v1
 +
-+    const v2, 0x7f1434f3    # 1.9700067E38f
++    const v2, 0x7f1434f6    # 1.9700073E38f
 +
 +    invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
 +
@@ -3045,7 +3045,7 @@ index a4ae0e121..6a3abae74 100644
 +
 +    move-result-object v1
 +
-+    const v2, 0x7f143526
++    const v2, 0x7f143529
 +
 +    invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
 +
@@ -3204,7 +3204,7 @@ index a4ae0e121..6a3abae74 100644
 +    return p0
 +.end method
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/dialogs/WifiApDialogP2pWifiDirectDisconnect.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/dialogs/WifiApDialogP2pWifiDirectDisconnect.smali
-index 902c4bd66..d11264109 100644
+index 3bfcac5f1..cffbeb669 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/dialogs/WifiApDialogP2pWifiDirectDisconnect.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/dialogs/WifiApDialogP2pWifiDirectDisconnect.smali
 @@ -103,11 +103,28 @@
@@ -3237,7 +3237,7 @@ index 902c4bd66..d11264109 100644
  
  .method public final onCreate(Landroid/os/Bundle;)V
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/dialogs/WifiApDialogSmartViewTurnOff.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/dialogs/WifiApDialogSmartViewTurnOff.smali
-index 997924275..7dffcd6d0 100644
+index c8a336629..63e4044da 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/dialogs/WifiApDialogSmartViewTurnOff.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/dialogs/WifiApDialogSmartViewTurnOff.smali
 @@ -49,7 +49,7 @@
@@ -3293,7 +3293,7 @@ index 997924275..7dffcd6d0 100644
  
      invoke-static {v3, p0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApFrameworkUtils.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApFrameworkUtils.smali
-index abbce4cd8..26a6b33bc 100644
+index 071e5fc89..82b07b633 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApFrameworkUtils.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApFrameworkUtils.smali
 @@ -609,7 +609,7 @@
@@ -3349,7 +3349,7 @@ index abbce4cd8..26a6b33bc 100644
  
      return p0
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApSoftApUtils.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApSoftApUtils.smali
-index 1b616bb30..0848c87a3 100644
+index cdb120044..1f9ee6d8b 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApSoftApUtils.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/utils/WifiApSoftApUtils.smali
 @@ -393,7 +393,7 @@
@@ -3421,7 +3421,7 @@ index 1b616bb30..0848c87a3 100644
  .end method
  
 diff --git a/smali_classes3/com/samsung/android/settings/wifi/mobileap/views/WifiApSeekBarPreference$1.smali b/smali_classes3/com/samsung/android/settings/wifi/mobileap/views/WifiApSeekBarPreference$1.smali
-index 0d83cac0c..8077055ff 100644
+index 1153819d8..dde161516 100644
 --- a/smali_classes3/com/samsung/android/settings/wifi/mobileap/views/WifiApSeekBarPreference$1.smali
 +++ b/smali_classes3/com/samsung/android/settings/wifi/mobileap/views/WifiApSeekBarPreference$1.smali
 @@ -24,7 +24,7 @@
@@ -3518,5 +3518,5 @@ index 0d83cac0c..8077055ff 100644
      return-void
  .end method
 -- 
-2.52.0
+2.53.0
 
